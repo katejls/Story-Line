@@ -18,6 +18,7 @@ function fixQuotes(dir) {
       content = content.replace(/\u201F/g, '"');
       content = content.replace(/\u2033/g, '"');
       content = content.replace(/\u2032/g, "'");
+      content = content.replace(/\u2026/g, '...');
       fs.writeFileSync(filePath, content, 'utf8');
       console.log('Fixed quotes in: ' + file);
     }
