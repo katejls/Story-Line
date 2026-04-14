@@ -132,17 +132,17 @@ RULES:
   gen(true, scId, a, b, [], 0, “”);
   }
   
-  function customStart() {
-  gen(true, scenario, pName, lName, [], 0, “”);
-  }
-  
-  function nextChapter() {
-  const s = stateRef.current;
-  gen(false, s.scenario, s.pName, s.lName, s.hist, s.chNum, s.curText);
-  }
-  
-  function reset() {
-  setScreen(“scenario”); setScenario(null); setChapters([]); setCurText(””); setChNum(0); setHist([]); setCMsgs([]); setCHist([]);
+    function fmt(text) {
+    return text.split("\n").map(function(ln, i) {
+      if (ln.indexOf("**") === 0 && ln.lastIndexOf("**") === ln.length - 2) {
+        return React.createElement("h3", {key: i, style: {fontSize: 19, fontWeight: 600, color: accent, margin: "18px 0 12px", lineHeight: 1.3}}, ln.split("**").join(""));
+      }
+      if (ln === "---") {
+        return React.createElement("div", {key: i, style: {height: 1, background: "linear-gradient(90deg,transparent,#1a1a24,transparent)", margin: "20px 0"}});
+      }
+      if (!ln.trim()) return React.createElement("br", {key: i});
+      return React.createElement("p", {key: i, style: {marginBottom: 6}}, ln);
+    });
   }
   
   // ─── CHAT ───
