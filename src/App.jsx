@@ -117,7 +117,7 @@ RULES:
   setScreen("story");
   setCMsgs([]);
   setCHist([
-    {role:"user",content:`You are ${l} from a ${sc.label} story. Chapter ${num} just happened. Stay in character. Use "${p}". 1-3 sentences. Emotionally engaging. Never break character or mention AI.`},
+    {role:"user",content:`You are ${l} from a ${sc.label} story. Chapter ${num} just happened. Stay in character. Use the name ${p}. 1-3 sentences. Emotionally engaging. Never break character or mention AI.`},
     {role:"assistant",content:"I understand."}
   ]);
   ```
