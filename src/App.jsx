@@ -46,13 +46,16 @@ const [err, setErr] = useState(””);
 const sRef = useRef(null);
 const cRef = useRef(null);
 const twRef = useRef(null);
+// We store scenario/names in refs too so async functions always read latest
 const stateRef = useRef({ scenario: null, pName: “”, lName: “”, chNum: 0, curText: “”, hist: [] });
 
+// Keep ref in sync
 useEffect(() => { stateRef.current = { scenario, pName, lName, chNum, curText, hist }; });
 
 const sel = SCENARIOS.find(s => s.id === scenario);
 const accent = sel?.color || “#c9a84c”;
 
+// Typewriter
 useEffect(() => {
 if (!curText) return;
 let i = 0; setShown(””);
@@ -64,6 +67,7 @@ return () => { if(twRef.current) clearInterval(twRef.current); };
 useEffect(() => { if(sRef.current) sRef.current.scrollTop = sRef.current.scrollHeight; }, [shown]);
 useEffect(() => { if(cRef.current) cRef.current.scrollTop = cRef.current.scrollHeight; }, [cMsgs, cBusy]);
 
+// Loading msg rotation
 useEffect(() => {
 if(!busy) return;
 setLmsg(LMSGS[Math.floor(Math.random()*LMSGS.length)]);
@@ -71,6 +75,7 @@ const iv = setInterval(() => setLmsg(LMSGS[Math.floor(Math.random()*LMSGS.length
 return () => clearInterval(iv);
 }, [busy]);
 
+// ─── GENERATE ───
 async function gen(isNew, scId, p, l, prevHist, prevChNum, prevCurText) {
 setBusy(true); setErr(””);
 const num = isNew ? 1 : prevChNum + 1;
@@ -140,6 +145,7 @@ RULES:
   setScreen(“scenario”); setScenario(null); setChapters([]); setCurText(””); setChNum(0); setHist([]); setCMsgs([]); setCHist([]);
   }
   
+  // ─── CHAT ───
   async function sendChat() {
   if(!cIn.trim()||cBusy) return;
   const msg = cIn.trim(); setCIn(””);
@@ -161,6 +167,7 @@ RULES:
   setCBusy(false);
   }
   
+  // ─── FMT ───
   function fmt(text) {
   return text.split(”\n”).map((ln,i)=>{
   if(ln.startsWith(”**”)&&ln.endsWith(”**”)) return <h3 key={i} style={{fontSize:19,fontWeight:600,color:accent,margin:“18px 0 12px”,lineHeight:1.3}}>{ln.replace(/**/g,””)}</h3>;
@@ -171,6 +178,7 @@ RULES:
   });
   }
   
+  // ─── STYLES ───
   const cd = (isSel,clr) => ({padding:“16px”,borderRadius:16,border:isSel?`1.5px solid ${clr}`:“1.5px solid #18181f”,background:isSel?`${clr}10`:”#0d0d14”,cursor:“pointer”,transition:“all 0.3s”,display:“flex”,gap:14,alignItems:“center”});
   const bt = (off) => ({width:“100%”,padding:“16px”,borderRadius:14,border:“none”,background:off?”#1a1a24”:`linear-gradient(135deg,${accent},${accent}bb)`,color:off?”#4a4540”:”#fff”,fontSize:15,fontWeight:600,fontFamily:FONT,cursor:off?“default”:“pointer”,letterSpacing:1,boxShadow:off?“none”:`0 4px 30px ${accent}30`});
   const b2 = {width:“100%”,padding:“14px”,borderRadius:14,border:“1px solid #1a1a24”,background:“transparent”,color:”#6b645a”,fontSize:13,fontFamily:FONT,cursor:“pointer”};
@@ -184,6 +192,7 @@ RULES:
   
   const css = `@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap');*{box-sizing:border-box;margin:0;padding:0}::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1a1a24;border-radius:4px}@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}@keyframes spin{to{transform:rotate(360deg)}}input::placeholder{color:#3a3530}`;
   
+  // ═══ SPLASH ═══
   if(screen===“splash”) return (
   
     <div style={W} onClick={()=>setScreen("scenario")}>
@@ -198,6 +207,7 @@ RULES:
     </div>
   );
   
+  // ═══ LOADING ═══
   if(busy) return (
   
     <div style={W}><div style={G}/>
@@ -213,6 +223,7 @@ RULES:
     </div>
   );
   
+  // ═══ SCENARIO ═══
   if(screen===“scenario”) return (
   
     <div style={W}><div style={G}/>
@@ -244,6 +255,7 @@ RULES:
     </div>
   );
   
+  // ═══ NAME SETUP ═══
   if(screen===“nameSetup”) return (
   
     <div style={W}><div style={G}/>
@@ -274,6 +286,7 @@ RULES:
     </div>
   );
   
+  // ═══ STORY ═══
   if(screen===“story”) return (
   
     <div style={W}><div style={G}/>
@@ -306,6 +319,7 @@ RULES:
     </div>
   );
   
+  // ═══ CHAT ═══
   if(screen===“chat”) return (
   
     <div style={W}><div style={G}/>
