@@ -11,8 +11,8 @@ var SCENARIOS = [
   { id: "thriller", emoji: "\u{1F52A}", label: "Dark Thriller", desc: "Trust no one. Especially the one you love.", color: "#636e72", bg: "linear-gradient(135deg, #0d0d0d, #0a0a0f)" }
 ];
 
-var NAMES = ["Kael","Damon","Lucian","Ren","Atlas","Cassian","Ezra","Zane","Orion","Silas","Aria","Luna","Seraphina","Ivy","Nova","Celeste","Elara","Freya","Scarlett","Violet"];
-var VILLAIN_NAMES = ["Malakai","Thorne","Ravenna","Draven","Lilith","Viktor","Morgana","Cain","Nyx","Soren","Bellatrix","Nero"];
+var NAMES = ["Kael","Damon","Lucian","Ren","Atlas","Cassian","Ezra","Zane","Orion","Silas","Aria","Luna","Seraphina","Ivy","Nova","Celeste","Elara","Freya","Scarlett","Violet","Jace","Rhys","Asher","Rowan","Felix","Mira","Sage","Kai","Lena","Theo","Quinn","River","Blake","Jade","Harlow","Suki","Cleo","Axel","Cruz","Emery","Wren","Phoenix","Sterling","Lyra","Ember"];
+var VILLAIN_NAMES = ["Malakai","Thorne","Ravenna","Draven","Lilith","Viktor","Morgana","Cain","Nyx","Soren","Bellatrix","Nero","Dante","Vesper","Lucrezia","Azazel","Delilah","Cyrus","Isolde","Thanatos","Kira","Damien","Selene","Ragnar","Vex","Crimson","Alaric","Jezebel","Obsidian","Raven","Mordecai","Sarai","Fenrir","Viper","Electra","Wraith","Scorpius","Tempest"];
 function rName() { return NAMES[Math.floor(Math.random() * NAMES.length)]; }
 function rVillain() { return VILLAIN_NAMES[Math.floor(Math.random() * VILLAIN_NAMES.length)]; }
 
