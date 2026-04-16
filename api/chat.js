@@ -1,5 +1,6 @@
 export const config = {
-  runtime: "edge"
+  runtime: "edge",
+  maxDuration: 30
 };
 
 export default async function handler(req) {
@@ -23,14 +24,20 @@ export default async function handler(req) {
       },
       body: JSON.stringify({
         model: "claude-haiku-4-5-20251001",
-        max_tokens: body.max_tokens || 1200,
+        max_tokens: body.max_tokens || 3000,
         system: body.system,
         messages: body.messages
       })
     });
 
-    var data = await response.json();
-    return new Response(JSON.stringify(data), { status: 200, headers: { "Content-Type": "application/json" } });
+    var responseText = await response.text();
+    
+    try {
+      var data = JSON.parse(responseText);
+      return new Response(JSON.stringify(data), { status: 200, headers: { "Content-Type": "application/json" } });
+    } catch (parseErr) {
+      return new Response(JSON.stringify({ error: "API returned invalid response: " + responseText.substring(0, 200) }), { status: 500, headers: { "Content-Type": "application/json" } });
+    }
   } catch (error) {
     return new Response(JSON.stringify({ error: "Failed: " + error.message }), { status: 500, headers: { "Content-Type": "application/json" } });
   }
