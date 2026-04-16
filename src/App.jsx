@@ -11,6 +11,15 @@ var SCENARIOS = [
   { id: "thriller", emoji: "\u{1F52A}", label: "Dark Thriller", desc: "Trust no one. Especially the one you love.", color: "#636e72", bg: "linear-gradient(135deg, #0d0d0d, #0a0a0f)" }
 ];
 
+var ENDINGS = [
+  { id: "happy", emoji: "\u{1F970}", label: "Happy Ending", desc: "Love wins. Everything falls into place.", color: "#27ae60" },
+  { id: "sad", emoji: "\u{1F494}", label: "Tragic Ending", desc: "Beautiful but heartbreaking. You will cry.", color: "#636e72" },
+  { id: "twist", emoji: "\u{1F92F}", label: "Plot Twist", desc: "Nothing is what it seems. Jaw-dropping finale.", color: "#e84393" },
+  { id: "open", emoji: "\u{1F32C}\uFE0F", label: "Open Ending", desc: "Leaves you wondering. The story lingers.", color: "#0984e3" },
+  { id: "dark", emoji: "\u{1F480}", label: "Dark Ending", desc: "The villain wins. Or does the hero become one?", color: "#2d3436" },
+  { id: "surprise", emoji: "\u{1F381}", label: "Surprise Me", desc: "Let fate decide. No spoilers.", color: "#fdcb6e" }
+];
+
 var NAMES = ["Kael","Damon","Lucian","Ren","Atlas","Cassian","Ezra","Zane","Orion","Silas","Aria","Luna","Seraphina","Ivy","Nova","Celeste","Elara","Freya","Scarlett","Violet","Jace","Rhys","Asher","Rowan","Felix","Mira","Sage","Kai","Lena","Theo","Quinn","River","Blake","Jade","Harlow","Suki","Cleo","Axel","Cruz","Emery","Wren","Phoenix","Sterling","Lyra","Ember"];
 var VILLAIN_NAMES = ["Malakai","Thorne","Ravenna","Draven","Lilith","Viktor","Morgana","Cain","Nyx","Soren","Bellatrix","Nero","Dante","Vesper","Lucrezia","Azazel","Delilah","Cyrus","Isolde","Thanatos","Kira","Damien","Selene","Ragnar","Vex","Crimson","Alaric","Jezebel","Obsidian","Raven","Mordecai","Sarai","Fenrir","Viper","Electra","Wraith","Scorpius","Tempest"];
 function rName() { return NAMES[Math.floor(Math.random() * NAMES.length)]; }
@@ -18,7 +27,18 @@ function rVillain() { return VILLAIN_NAMES[Math.floor(Math.random() * VILLAIN_NA
 
 var HINTS = { revenge:"cunning plans, betrayal reveals, power shifts", reborn:"memories from past life, using future knowledge", mafia:"danger, possessiveness, forbidden attraction", billionaire:"power dynamics, luxury settings, intense attraction", werewolf:"the mate bond, pack dynamics, primal instincts", enemies:"banter, tension, forced proximity", royal:"duty vs desire, elegance, forbidden love", thriller:"suspense, paranoia, dangerous attraction" };
 var TITLES_MAP = { mafia:"THE DON", billionaire:"CEO", werewolf:"ALPHA", royal:"CROWN PRINCE", revenge:"YOUR ALLY", reborn:"PAST LIFE", enemies:"YOUR RIVAL", thriller:"SUSPECT" };
-var LMSGS = ["Writing your fate...","The plot thickens...","Crafting the tension...","Building your world...","Adding the cliffhanger..."];
+var LMSGS = ["Writing your fate...","The plot thickens...","Crafting the tension...","Building your world...","Choosing your destiny...","Sealing the ending..."];
+var SETTINGS = ["modern day big city", "small coastal town", "1920s noir", "futuristic dystopia", "medieval kingdom", "tropical island", "snowy mountain lodge", "underground world", "boarding school", "war-torn country", "luxury yacht", "haunted mansion", "desert oasis", "neon-lit Tokyo", "Parisian streets", "Las Vegas penthouse", "ancient temple ruins", "Victorian London", "cyberpunk megacity", "remote countryside estate"];
+var OPENINGS = ["a chance encounter", "a shocking discovery", "a desperate escape", "a mistaken identity", "a forbidden meeting", "a deadly accident", "waking up with no memory", "receiving a mysterious letter", "witnessing something forbidden", "being betrayed by someone close", "arriving somewhere new", "a funeral", "a high-stakes negotiation", "a storm that changes everything", "a wedding that goes wrong", "a secret revealed at midnight"];
+
+var ENDING_PROMPTS = {
+  happy: "End with a satisfying, heartwarming happy ending. Love wins, the characters find peace, and the reader feels warm inside.",
+  sad: "End with a beautiful but tragic ending. Make the reader feel deep emotion - loss, sacrifice, or bittersweet acceptance. Make them cry.",
+  twist: "End with a massive, jaw-dropping plot twist that recontextualizes everything. The reader should gasp. Nothing was what it seemed.",
+  open: "End with an open, ambiguous ending that lingers in the mind. Leave questions unanswered. Let the reader imagine what comes next.",
+  dark: "End with a dark, unsettling ending. The villain may win, or the hero crosses a moral line. Leave the reader shaken.",
+  surprise: "End with whatever ending fits the story best - could be happy, tragic, twisted, or anything. Surprise the reader."
+};
 
 var FONT = "Cormorant Garamond,Georgia,serif";
 var MONO = "DM Mono,Courier New,monospace";
@@ -38,15 +58,13 @@ export default function App() {
   var _pn = useState(""); var pName = _pn[0]; var setPName = _pn[1];
   var _ln = useState(""); var lName = _ln[0]; var setLName = _ln[1];
   var _vn = useState(""); var vName = _vn[0]; var setVName = _vn[1];
+  var _en = useState(null); var ending = _en[0]; var setEnding = _en[1];
   var _nm = useState(null); var nMode = _nm[0]; var setNMode = _nm[1];
   var _lm = useState(null); var lMode = _lm[0]; var setLMode = _lm[1];
   var _vm = useState(null); var vMode = _vm[0]; var setVMode = _vm[1];
 
-  var _ch = useState([]); var chapters = _ch[0]; var setChapters = _ch[1];
   var _ct = useState(""); var curText = _ct[0]; var setCurText = _ct[1];
   var _sh = useState(""); var shown = _sh[0]; var setShown = _sh[1];
-  var _cn = useState(0); var chNum = _cn[0]; var setChNum = _cn[1];
-  var _hi = useState([]); var hist = _hi[0]; var setHist = _hi[1];
   var _bu = useState(false); var busy = _bu[0]; var setBusy = _bu[1];
   var _lms = useState(LMSGS[0]); var lmsg = _lms[0]; var setLmsg = _lms[1];
 
@@ -59,9 +77,6 @@ export default function App() {
   var sRef = useRef(null);
   var cRef = useRef(null);
   var twRef = useRef(null);
-  var stateRef = useRef({});
-
-  useEffect(function() { stateRef.current = { scenario: scenario, pName: pName, lName: lName, vName: vName, chNum: chNum, curText: curText, hist: hist }; });
 
   var sel = SCENARIOS.find(function(s) { return s.id === scenario; });
   var accent = (sel && sel.color) ? sel.color : "#c9a84c";
@@ -84,51 +99,33 @@ export default function App() {
     return function() { clearInterval(iv); };
   }, [busy]);
 
-  var SETTINGS = ["modern day big city", "small coastal town", "1920s noir", "futuristic dystopia", "medieval kingdom", "tropical island", "snowy mountain lodge", "underground world", "boarding school", "war-torn country", "luxury yacht", "haunted mansion", "desert oasis", "neon-lit Tokyo", "Parisian streets"];
-  var OPENINGS = ["a chance encounter", "a shocking discovery", "a desperate escape", "a mistaken identity", "a forbidden meeting", "a deadly accident", "waking up with no memory", "receiving a mysterious letter", "witnessing something you should not have", "being betrayed by someone close", "arriving somewhere new", "a funeral", "a high-stakes negotiation", "a storm that changes everything"];
-
-  function gen(isNew, scId, p, l, v, prevHist, prevChNum, prevCurText) {
-    console.log("gen called", {isNew: isNew, scId: scId, p: p, l: l, v: v, chNum: prevChNum});
+  function generateStory(scId, p, l, v, endingType) {
     setBusy(true); setErr("");
-    var num = isNew ? 1 : prevChNum + 1;
     var sc = SCENARIOS.find(function(s) { return s.id === scId; });
     var villainLine = v ? "\n- The villain/antagonist is " + v + " - make them menacing, cunning, and a real threat" : "";
     var setting = SETTINGS[Math.floor(Math.random() * SETTINGS.length)];
     var opening = OPENINGS[Math.floor(Math.random() * OPENINGS.length)];
     var storyId = Math.floor(Math.random() * 99999);
-    var sys = "You are a bestselling novelist writing a personalized " + sc.label + " novel.\nRULES:\n- The main character (reader) is named " + p + " - write in second person (you)\n- The love interest / key ally is " + l + "\n- Write Chapter " + num + " - 500-700 words\n- Start with **Chapter " + num + ": [Title]** - the title MUST be unique and creative\n- Vivid detail, sharp dialogue, emotional depth\n- End with a devastating cliffhanger\n- Make " + l + " magnetic and unforgettable\n- Include " + (HINTS[scId] || "tension and depth") + "\n- Write like a real published novel\n- Be BOLD and surprising\n- IMPORTANT: This is story #" + storyId + " - make it completely different from any other story" + villainLine;
+    var endingInstruction = ENDING_PROMPTS[endingType] || ENDING_PROMPTS.surprise;
 
-    var uMsg = isNew
-      ? "Write Chapter 1 of a brand new unique story. Setting: " + setting + ". The story begins with " + opening + ". Drop " + p + " right into this pivotal moment. Make " + p + " feel " + l + " presence immediately. Create a unique, never-before-seen chapter title." + (v ? " Introduce the threat of " + v + " early." : "")
-      : "Write Chapter " + num + ". Raise the stakes. Deepen the connection between " + p + " and " + l + "." + (v ? " " + v + " should become more dangerous." : "") + " End with something devastating. Use a unique chapter title.";
+    var sys = "You are a bestselling novelist writing a personalized " + sc.label + " short story.\nRULES:\n- The main character (reader) is named " + p + " - write in second person (you)\n- The love interest / key ally is " + l + "\n- Write a COMPLETE short story - beginning, middle, and ending\n- 800-1200 words total\n- Start with **[Creative Unique Title]**\n- Vivid detail, sharp dialogue, emotional depth\n- Make " + l + " magnetic and unforgettable\n- Include " + (HINTS[scId] || "tension and depth") + "\n- Write like a real published novel\n- Be BOLD and surprising\n- ENDING: " + endingInstruction + "\n- IMPORTANT: This is story #" + storyId + " - make it completely unique" + villainLine;
 
-    var msgs;
-    if (isNew) {
-      msgs = [{role: "user", content: uMsg}];
-    } else {
-      // Only send the last chapter as context (not full history) to avoid timeout
-      var lastChapterSummary = prevCurText.substring(0, 800);
-      msgs = [
-        {role: "user", content: "Here is what happened in the previous chapter:\n\n" + lastChapterSummary + "\n\n---\n\nNow continue the story. " + uMsg},
-      ];
-    }
+    var uMsg = "Write a complete personalized " + sc.label + " short story. Setting: " + setting + ". The story begins with " + opening + ". Main character: " + p + ". Love interest: " + l + "." + (v ? " Villain: " + v + "." : "") + " Include a powerful beginning, an emotional middle with rising tension, and a memorable ending. Make it unforgettable.";
 
-    callAPI(sys, msgs, 1200).then(function(d) {
+    var msgs = [{role: "user", content: uMsg}];
+
+    callAPI(sys, msgs, 1500).then(function(d) {
       console.log("API response", d);
       var txt = "";
       if (d.content) { for (var ci = 0; ci < d.content.length; ci++) { txt += (d.content[ci].text || ""); } }
       if (d.error) { setErr("API Error: " + (d.error.message || d.error)); setBusy(false); return; }
       if (!txt) { setErr("No content returned. Check your API key in Vercel settings."); setBusy(false); return; }
 
-      var nh = msgs.concat([{role: "assistant", content: txt}]);
-      setHist(nh);
-      if (isNew) { setChapters([]); setChNum(1); }
-      else { setChapters(function(prev) { return prev.concat([{text: prevCurText, num: prevChNum}]); }); setChNum(num); }
       setCurText(txt);
       setScreen("story");
       setCMsgs([]);
       setCHist([
-        {role: "user", content: "You are " + l + " from a " + sc.label + " story. Chapter " + num + " just happened. Stay in character. Use the name " + p + ". 1-3 sentences. Emotionally engaging. Never break character or mention AI."},
+        {role: "user", content: "You are " + l + " from a " + sc.label + " story that just ended. Stay in character. Use the name " + p + ". 1-3 sentences. Emotionally engaging. Never break character or mention AI."},
         {role: "assistant", content: "I understand."}
       ]);
       setBusy(false);
@@ -142,28 +139,21 @@ export default function App() {
     var a = rName(); var b = rName(); var v = rVillain();
     while (b === a) b = rName();
     while (v === a || v === b) v = rVillain();
-    setScenario(scId); setPName(a); setLName(b); setVName(v);
-    gen(true, scId, a, b, v, [], 0, "");
+    var endings = ["happy","sad","twist","open","dark","surprise"];
+    var randEnding = endings[Math.floor(Math.random() * endings.length)];
+    setScenario(scId); setPName(a); setLName(b); setVName(v); setEnding(randEnding);
+    generateStory(scId, a, b, v, randEnding);
   }
 
   function customStart() {
-    gen(true, scenario, pName, lName, vName, [], 0, "");
-  }
-
-  function nextChapter() {
-    var s = stateRef.current;
-    console.log("nextChapter called", s);
-    if (!s.scenario || !s.pName || !s.lName) {
-      console.error("Missing state for next chapter", s);
-      setErr("Missing data. Please start a new story.");
-      return;
-    }
-    gen(false, s.scenario, s.pName, s.lName, s.vName || "", s.hist, s.chNum, s.curText);
+    generateStory(scenario, pName, lName, vName, ending);
   }
 
   function doReset() {
-    setScreen("scenario"); setScenario(null); setChapters([]); setCurText(""); setShown(""); setChNum(0); setHist([]); setCMsgs([]); setCHist([]); setErr("");
-    setNMode(null); setLMode(null); setVMode(null); setPName(""); setLName(""); setVName("");
+    setScreen("scenario"); setScenario(null); setCurText(""); setShown(""); setErr("");
+    setNMode(null); setLMode(null); setVMode(null); setEnding(null);
+    setPName(""); setLName(""); setVName("");
+    setCMsgs([]); setCHist([]);
   }
 
   function sendChat() {
@@ -218,7 +208,7 @@ export default function App() {
   function nb(a) { return {flex: 1, padding: "12px", background: a ? accent + "15" : "transparent", color: a ? accent : "#4a4540", border: "none", fontSize: 12, fontFamily: MONO, letterSpacing: 1, cursor: "pointer", borderBottom: a ? "2px solid " + accent : "2px solid transparent"}; }
   var divider = {height: 1, background: "linear-gradient(90deg,transparent,#1a1a24,transparent)", margin: "20px 0"};
 
-  // ═══ SPLASH ═══
+  // SPLASH
   if (screen === "splash") return (
     <div style={W} onClick={function() { setScreen("scenario"); }}>
       <div style={G} />
@@ -232,7 +222,7 @@ export default function App() {
     </div>
   );
 
-  // ═══ LOADING ═══
+  // LOADING
   if (busy) return (
     <div style={W}><div style={G} />
       <div style={Object.assign({}, C, {display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", textAlign: "center"})}>
@@ -242,32 +232,31 @@ export default function App() {
           {sel && <span style={pl}>{sel.emoji} {sel.label}</span>}
           {pName && <span style={pl}>{pName}</span>}
           {lName && <span style={pl}>{lName}</span>}
-          {vName && <span style={Object.assign({}, pl, {background: "#c0392b18", color: "#c0392b"})}>{vName}</span>}
         </div>
       </div>
       <style>{CSS_TEXT}</style>
     </div>
   );
 
-  // ═══ ERROR SCREEN (when not busy but has error) ═══
+  // ERROR
   if (err && screen !== "story" && screen !== "chat") return (
     <div style={W}><div style={G} />
       <div style={Object.assign({}, C, {display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", minHeight: "100vh", textAlign: "center"})}>
-        <div style={{fontSize: 48, marginBottom: 16}}>&#9888;&#65039;</div>
+        <div style={{fontSize: 48, marginBottom: 16}}>{"\u26A0\uFE0F"}</div>
         <h2 style={{fontSize: 20, fontWeight: 400, marginBottom: 12, color: "#c0392b"}}>{err}</h2>
-        <p style={{fontSize: 13, color: "#6b645a", marginBottom: 24, maxWidth: 300, lineHeight: 1.5}}>Make sure your ANTHROPIC_API_KEY is set in Vercel Settings and you have redeployed.</p>
+        <p style={{fontSize: 13, color: "#6b645a", marginBottom: 24, maxWidth: 300, lineHeight: 1.5}}>Make sure your ANTHROPIC_API_KEY is set in Vercel Settings.</p>
         <button style={bt(false)} onClick={function() { setErr(""); setScreen("scenario"); }}>Try Again</button>
       </div>
       <style>{CSS_TEXT}</style>
     </div>
   );
 
-  // ═══ SCENARIO ═══
+  // SCENARIO SELECT
   if (screen === "scenario") return (
     <div style={W}><div style={G} />
       <div style={C}>
         <div style={{textAlign: "center", padding: "24px 0 8px"}}><div style={LO}>storyline</div></div>
-        <div style={{fontSize: 10, letterSpacing: 4, color: "#3a3530", fontFamily: MONO, marginBottom: 14}}>STEP 1 OF 2</div>
+        <div style={{fontSize: 10, letterSpacing: 4, color: "#3a3530", fontFamily: MONO, marginBottom: 14}}>STEP 1 OF 3</div>
         <h2 style={{fontSize: 26, fontWeight: 300, marginBottom: 6}}>What world do you<br />want to live in?</h2>
         <p style={{fontSize: 13, color: "#5a544a", marginBottom: 16, fontStyle: "italic"}}>Pick your story. Then personalize it.</p>
         <div style={{display: "flex", flexDirection: "column", gap: 10}}>
@@ -284,7 +273,7 @@ export default function App() {
         {scenario && (
           <div style={{marginTop: 20, display: "flex", flexDirection: "column", gap: 8}}>
             <button style={bt(false)} onClick={function() { setScreen("nameSetup"); }}>Personalize My Story</button>
-            <button style={b2} onClick={function() { quickStart(scenario); }}>Skip - Use Random Names</button>
+            <button style={b2} onClick={function() { quickStart(scenario); }}>Skip - Random Everything</button>
           </div>
         )}
       </div>
@@ -292,17 +281,16 @@ export default function App() {
     </div>
   );
 
-  // ═══ NAME SETUP ═══
+  // NAME SETUP
   if (screen === "nameSetup") return (
     <div style={W}><div style={G} />
       <div style={C}>
         <div style={{textAlign: "center", padding: "24px 0 8px"}}><div style={LO}>storyline</div></div>
-        <div style={{fontSize: 10, letterSpacing: 4, color: "#3a3530", fontFamily: MONO, marginBottom: 14}}>STEP 2 OF 2</div>
+        <div style={{fontSize: 10, letterSpacing: 4, color: "#3a3530", fontFamily: MONO, marginBottom: 14}}>STEP 2 OF 3</div>
         <h2 style={{fontSize: 24, fontWeight: 300, marginBottom: 16}}>Name your characters</h2>
 
-        {/* PLAYER NAME */}
         <div style={{marginBottom: 20}}>
-          <div style={{fontSize: 12, letterSpacing: 3, color: "#5a544a", fontFamily: MONO, textTransform: "uppercase", marginBottom: 10}}>You (the main character)</div>
+          <div style={{fontSize: 12, letterSpacing: 3, color: "#5a544a", fontFamily: MONO, textTransform: "uppercase", marginBottom: 10}}>You (main character)</div>
           <div style={cd(nMode === "custom", accent)} onClick={function() { setNMode("custom"); setPName(""); }}>
             <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u270D\uFE0F"}</div>
             <div style={{fontSize: 14, fontWeight: 600}}>Type my name</div>
@@ -317,7 +305,6 @@ export default function App() {
 
         <div style={divider} />
 
-        {/* LOVE INTEREST */}
         <div style={{marginBottom: 20}}>
           <div style={{fontSize: 12, letterSpacing: 3, color: "#5a544a", fontFamily: MONO, textTransform: "uppercase", marginBottom: 10}}>Love interest / ally</div>
           <div style={cd(lMode === "custom", accent)} onClick={function() { setLMode("custom"); setLName(""); }}>
@@ -334,9 +321,8 @@ export default function App() {
 
         <div style={divider} />
 
-        {/* VILLAIN */}
         <div style={{marginBottom: 20}}>
-          <div style={{fontSize: 12, letterSpacing: 3, color: accent === "#c0392b" ? "#c0392b" : "#8b4545", fontFamily: MONO, textTransform: "uppercase", marginBottom: 10}}>Villain / antagonist (optional)</div>
+          <div style={{fontSize: 12, letterSpacing: 3, color: "#8b4545", fontFamily: MONO, textTransform: "uppercase", marginBottom: 10}}>Villain (optional)</div>
           <div style={cd(vMode === "custom", "#c0392b")} onClick={function() { setVMode("custom"); setVName(""); }}>
             <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u270D\uFE0F"}</div>
             <div style={{fontSize: 14, fontWeight: 600}}>Type villain name</div>
@@ -355,20 +341,52 @@ export default function App() {
 
         <div style={{display: "flex", gap: 10, marginTop: 16}}>
           <button style={Object.assign({}, b2, {flex: 1})} onClick={function() { setScreen("scenario"); }}>Back</button>
-          <button style={Object.assign({}, bt(!pName || !lName), {flex: 2})} onClick={function() { if (pName && lName) customStart(); }} disabled={!pName || !lName}>Begin My Story</button>
+          <button style={Object.assign({}, bt(!pName || !lName), {flex: 2})} onClick={function() { if (pName && lName) setScreen("endingSelect"); }} disabled={!pName || !lName}>Choose Ending</button>
         </div>
       </div>
       <style>{CSS_TEXT}</style>
     </div>
   );
 
-  // ═══ STORY ═══
+  // ENDING SELECT
+  if (screen === "endingSelect") return (
+    <div style={W}><div style={G} />
+      <div style={C}>
+        <div style={{textAlign: "center", padding: "24px 0 8px"}}><div style={LO}>storyline</div></div>
+        <div style={{fontSize: 10, letterSpacing: 4, color: "#3a3530", fontFamily: MONO, marginBottom: 14}}>STEP 3 OF 3</div>
+        <h2 style={{fontSize: 24, fontWeight: 300, marginBottom: 6}}>How should it end?</h2>
+        <p style={{fontSize: 13, color: "#5a544a", marginBottom: 16, fontStyle: "italic"}}>Choose your destiny before the story begins.</p>
+
+        <div style={{display: "flex", flexDirection: "column", gap: 10}}>
+          {ENDINGS.map(function(e) { return (
+            <div key={e.id} style={cd(ending === e.id, e.color)} onClick={function() { setEnding(e.id); }}>
+              <div style={{fontSize: 28, width: 44, textAlign: "center", flexShrink: 0}}>{e.emoji}</div>
+              <div style={{flex: 1}}>
+                <div style={{fontSize: 16, fontWeight: 600, color: ending === e.id ? e.color : "#e8e0d4"}}>{e.label}</div>
+                <div style={{fontSize: 12, color: "#5a544a", marginTop: 2, lineHeight: 1.4}}>{e.desc}</div>
+              </div>
+            </div>
+          ); })}
+        </div>
+
+        {ending && (
+          <div style={{marginTop: 20, display: "flex", flexDirection: "column", gap: 8}}>
+            <button style={bt(false)} onClick={customStart}>Write My Story</button>
+          </div>
+        )}
+        <button style={Object.assign({}, b2, {marginTop: 8})} onClick={function() { setScreen("nameSetup"); }}>Back</button>
+      </div>
+      <style>{CSS_TEXT}</style>
+    </div>
+  );
+
+  // STORY
   if (screen === "story") return (
     <div style={W}><div style={G} />
       <div style={Object.assign({}, C, {paddingBottom: 120})}>
         <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12}}>
           <div style={LO}>storyline</div>
-          <button style={{background: "none", border: "none", color: "#3a3530", fontSize: 11, cursor: "pointer", fontFamily: MONO, letterSpacing: 2}} onClick={doReset}>NEW</button>
+          <button style={{background: "none", border: "none", color: "#3a3530", fontSize: 11, cursor: "pointer", fontFamily: MONO, letterSpacing: 2}} onClick={doReset}>NEW STORY</button>
         </div>
         <div style={{display: "flex", gap: 0, background: "#0d0d12", borderRadius: 14, overflow: "hidden", border: "1px solid #1a1a24", marginBottom: 16}}>
           <button style={nb(true)}>STORY</button>
@@ -376,18 +394,17 @@ export default function App() {
         </div>
         <div style={{display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap"}}>
           {sel && <span style={pl}>{sel.emoji} {sel.label}</span>}
-          <span style={pl}>Ch. {chNum}</span>
           <span style={pl}>{pName}</span>
+          {ending && <span style={Object.assign({}, pl, {background: (ENDINGS.find(function(e){return e.id===ending;})||{}).color + "18", color: (ENDINGS.find(function(e){return e.id===ending;})||{}).color})}>{(ENDINGS.find(function(e){return e.id===ending;})||{}).emoji} {(ENDINGS.find(function(e){return e.id===ending;})||{}).label}</span>}
         </div>
-        <div ref={sRef} style={{maxHeight: "55vh", overflowY: "auto", padding: "20px", background: "#09090f", borderRadius: 16, border: "1px solid #141420", lineHeight: 1.9, fontSize: 15.5, whiteSpace: "pre-wrap"}}>
-          {chapters.map(function(ch, i) { return <div key={i} style={{marginBottom: 20, opacity: 0.7}}>{fmt(ch.text)}<div style={divider} /></div>; })}
+        <div ref={sRef} style={{maxHeight: "60vh", overflowY: "auto", padding: "20px", background: "#09090f", borderRadius: 16, border: "1px solid #141420", lineHeight: 1.9, fontSize: 15.5, whiteSpace: "pre-wrap"}}>
           {fmt(shown)}
         </div>
         {err && <p style={{color: "#c0392b", marginTop: 10, fontSize: 13, textAlign: "center"}}>{err}</p>}
         <div style={{position: "fixed", bottom: 0, left: 0, right: 0, padding: "16px 20px 28px", background: "linear-gradient(transparent,#07070b 30%)", zIndex: 10}}>
           <div style={{maxWidth: 480, margin: "0 auto", display: "flex", flexDirection: "column", gap: 8}}>
             <button style={bt(false)} onClick={function() { setScreen("chat"); }}>{lName} wants to talk to you...</button>
-            <button style={b2} onClick={nextChapter}>Next Chapter</button>
+            <button style={b2} onClick={doReset}>New Story</button>
           </div>
         </div>
       </div>
@@ -395,7 +412,7 @@ export default function App() {
     </div>
   );
 
-  // ═══ CHAT ═══
+  // CHAT
   if (screen === "chat") return (
     <div style={W}><div style={G} />
       <div style={Object.assign({}, C, {display: "flex", flexDirection: "column", height: "100vh", paddingBottom: 0})}>
@@ -428,8 +445,9 @@ export default function App() {
           <input style={{flex: 1, padding: "12px 16px", borderRadius: 24, border: "1px solid #222230", background: "#0d0d14", color: "#e8e0d4", fontSize: 14, fontFamily: FONT, outline: "none"}} placeholder={"Message " + lName + "..."} value={cIn} onChange={function(e) { setCIn(e.target.value); }} onKeyDown={function(e) { if (e.key === "Enter") sendChat(); }} />
           <button onClick={sendChat} style={{width: 44, height: 44, borderRadius: "50%", border: "none", background: accent, color: "#fff", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0}}>{"\u2192"}</button>
         </div>
-        <div style={{flexShrink: 0, paddingBottom: 12}}>
-          <button style={b2} onClick={nextChapter}>Continue to Chapter {chNum + 1}</button>
+        <div style={{flexShrink: 0, paddingBottom: 12, display: "flex", gap: 8}}>
+          <button style={Object.assign({}, b2, {flex: 1})} onClick={function() { setScreen("story"); }}>Back to Story</button>
+          <button style={Object.assign({}, b2, {flex: 1})} onClick={doReset}>New Story</button>
         </div>
       </div>
       <style>{CSS_TEXT}</style>
