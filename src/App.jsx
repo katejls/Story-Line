@@ -84,17 +84,23 @@ export default function App() {
     return function() { clearInterval(iv); };
   }, [busy]);
 
+  var SETTINGS = ["modern day big city", "small coastal town", "1920s noir", "futuristic dystopia", "medieval kingdom", "tropical island", "snowy mountain lodge", "underground world", "boarding school", "war-torn country", "luxury yacht", "haunted mansion", "desert oasis", "neon-lit Tokyo", "Parisian streets"];
+  var OPENINGS = ["a chance encounter", "a shocking discovery", "a desperate escape", "a mistaken identity", "a forbidden meeting", "a deadly accident", "waking up with no memory", "receiving a mysterious letter", "witnessing something you should not have", "being betrayed by someone close", "arriving somewhere new", "a funeral", "a high-stakes negotiation", "a storm that changes everything"];
+
   function gen(isNew, scId, p, l, v, prevHist, prevChNum, prevCurText) {
     console.log("gen called", {isNew: isNew, scId: scId, p: p, l: l, v: v, chNum: prevChNum});
     setBusy(true); setErr("");
     var num = isNew ? 1 : prevChNum + 1;
     var sc = SCENARIOS.find(function(s) { return s.id === scId; });
     var villainLine = v ? "\n- The villain/antagonist is " + v + " - make them menacing, cunning, and a real threat" : "";
-    var sys = "You are a bestselling novelist writing a personalized " + sc.label + " novel.\nRULES:\n- The main character (reader) is named " + p + " - write in second person (you)\n- The love interest / key ally is " + l + "\n- Write Chapter " + num + " - 500-700 words\n- Start with **Chapter " + num + ": [Title]**\n- Vivid detail, sharp dialogue, emotional depth\n- End with a devastating cliffhanger\n- Make " + l + " magnetic and unforgettable\n- Include " + (HINTS[scId] || "tension and depth") + "\n- Write like a real published novel\n- Be BOLD and surprising" + villainLine;
+    var setting = SETTINGS[Math.floor(Math.random() * SETTINGS.length)];
+    var opening = OPENINGS[Math.floor(Math.random() * OPENINGS.length)];
+    var storyId = Math.floor(Math.random() * 99999);
+    var sys = "You are a bestselling novelist writing a personalized " + sc.label + " novel.\nRULES:\n- The main character (reader) is named " + p + " - write in second person (you)\n- The love interest / key ally is " + l + "\n- Write Chapter " + num + " - 500-700 words\n- Start with **Chapter " + num + ": [Title]** - the title MUST be unique and creative\n- Vivid detail, sharp dialogue, emotional depth\n- End with a devastating cliffhanger\n- Make " + l + " magnetic and unforgettable\n- Include " + (HINTS[scId] || "tension and depth") + "\n- Write like a real published novel\n- Be BOLD and surprising\n- IMPORTANT: This is story #" + storyId + " - make it completely different from any other story" + villainLine;
 
     var uMsg = isNew
-      ? "Write Chapter 1. Drop " + p + " right into a pivotal moment. Make " + p + " feel " + l + " presence immediately." + (v ? " Introduce the threat of " + v + " early." : "")
-      : "Write Chapter " + num + ". Raise the stakes. Deepen the connection between " + p + " and " + l + "." + (v ? " " + v + " should become more dangerous." : "") + " End with something devastating.";
+      ? "Write Chapter 1 of a brand new unique story. Setting: " + setting + ". The story begins with " + opening + ". Drop " + p + " right into this pivotal moment. Make " + p + " feel " + l + " presence immediately. Create a unique, never-before-seen chapter title." + (v ? " Introduce the threat of " + v + " early." : "")
+      : "Write Chapter " + num + ". Raise the stakes. Deepen the connection between " + p + " and " + l + "." + (v ? " " + v + " should become more dangerous." : "") + " End with something devastating. Use a unique chapter title.";
 
     var msgs;
     if (isNew) { msgs = [{role: "user", content: uMsg}]; }
