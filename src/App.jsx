@@ -108,7 +108,7 @@ export default function App() {
     var storyId = Math.floor(Math.random() * 99999);
     var endingInstruction = ENDING_PROMPTS[endingType] || ENDING_PROMPTS.surprise;
 
-    var sys = "You are a bestselling novelist writing a personalized " + sc.label + " short story.\nRULES:\n- The main character (reader) is named " + p + " - write in second person (you)\n- The love interest / key ally is " + l + "\n- Write a COMPLETE short story - beginning, middle, and ending\n- 800-1200 words total\n- Start with **[Creative Unique Title]**\n- Vivid detail, sharp dialogue, emotional depth\n- Make " + l + " magnetic and unforgettable\n- Include " + (HINTS[scId] || "tension and depth") + "\n- Write like a real published novel\n- Be BOLD and surprising\n- ENDING: " + endingInstruction + "\n- IMPORTANT: This is story #" + storyId + " - make it completely unique" + villainLine;
+    var sys = "You write addictive, binge-worthy " + sc.label + " stories in the style of Wattpad, Dreame, and TikTok novels.\nRULES:\n- Main character is " + p + " - write in second person (you)\n- Love interest is " + l + "\n- Write a COMPLETE short story - beginning, middle, and ending\n- 800-1200 words\n- Start with **[Creative Unique Title]**\n- Write in a modern, casual, emotional style - NOT formal or literary\n- Use short punchy sentences. Sentence fragments are fine.\n- Heavy on dialogue and internal thoughts\n- Make the reader FEEL everything - butterflies, heartbreak, rage, tension\n- Make " + l + " irresistible - the kind of character readers fall in love with\n- Include " + (HINTS[scId] || "tension and depth") + "\n- Be dramatic, emotional, and addictive\n- ENDING: " + endingInstruction + "\n- Story #" + storyId + " - must be completely unique" + villainLine;
 
     var uMsg = "Write a complete personalized " + sc.label + " short story. Setting: " + setting + ". The story begins with " + opening + ". Main character: " + p + ". Love interest: " + l + "." + (v ? " Villain: " + v + "." : "") + " Include a powerful beginning, an emotional middle with rising tension, and a memorable ending. Make it unforgettable.";
 
@@ -125,7 +125,7 @@ export default function App() {
       setScreen("story");
       setCMsgs([]);
       setCHist([
-        {role: "user", content: "You are " + l + " from a " + sc.label + " story that just ended. Stay in character. Use the name " + p + ". 1-3 sentences. Emotionally engaging. Never break character or mention AI."},
+        {role: "user", content: "You are " + l + " from a " + sc.label + " story, texting " + p + " after the story just ended. Stay in character. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text like *smiles* or *leans in*. Just write normal messages like texting. Be flirty, intense, or emotional depending on the mood. Never mention AI."},
         {role: "assistant", content: "I understand."}
       ]);
       setBusy(false);
@@ -162,7 +162,7 @@ export default function App() {
     setCMsgs(function(p) { return p.concat([{role: "user", text: msg}]); });
     setCBusy(true);
     var sc = SCENARIOS.find(function(s) { return s.id === scenario; });
-    var sys = "You are " + lName + ", from a " + sc.label + " story, talking to " + pName + ". Stay in character. 1-3 sentences. Emotionally engaging. Use " + pName + " name sometimes. NEVER mention AI. Personality: " + (HINTS[scenario] || "intense");
+    var sys = "You are " + lName + " from a " + sc.label + " story, texting " + pName + ". Rules: Stay in character always. 1-3 sentences max. Text casually like a real person would. DO NOT use asterisks, action text, or roleplay formatting like *smiles* or *leans closer*. Just write normal text messages. Be emotionally engaging - flirty, intense, protective, jealous, or vulnerable depending on context. Use " + pName + " name sometimes. NEVER mention being AI. Personality: " + (HINTS[scenario] || "intense");
     var msgs = cHist.concat([{role: "user", content: msg}]);
     callAPI(sys, msgs, 200).then(function(d) {
       var reply = "";
