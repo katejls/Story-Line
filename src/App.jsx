@@ -103,8 +103,15 @@ export default function App() {
       : "Write Chapter " + num + ". Raise the stakes. Deepen the connection between " + p + " and " + l + "." + (v ? " " + v + " should become more dangerous." : "") + " End with something devastating. Use a unique chapter title.";
 
     var msgs;
-    if (isNew) { msgs = [{role: "user", content: uMsg}]; }
-    else { msgs = prevHist.concat([{role: "user", content: uMsg}]); }
+    if (isNew) {
+      msgs = [{role: "user", content: uMsg}];
+    } else {
+      // Only send the last chapter as context (not full history) to avoid timeout
+      var lastChapterSummary = prevCurText.substring(0, 800);
+      msgs = [
+        {role: "user", content: "Here is what happened in the previous chapter:\n\n" + lastChapterSummary + "\n\n---\n\nNow continue the story. " + uMsg},
+      ];
+    }
 
     callAPI(sys, msgs, 1200).then(function(d) {
       console.log("API response", d);
