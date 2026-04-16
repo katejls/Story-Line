@@ -45,10 +45,12 @@ var MONO = "DM Mono,Courier New,monospace";
 var CSS_TEXT = "@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap');*{box-sizing:border-box;margin:0;padding:0}::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1a1a24;border-radius:4px}@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}@keyframes spin{to{transform:rotate(360deg)}}input::placeholder{color:#3a3530}";
 
 function callAPI(system, messages, maxTokens) {
-  return fetch("/api/chat", {
+  var url = window.location.origin + "/api/chat";
+  var bodyStr = JSON.stringify({ system: system, messages: messages, max_tokens: maxTokens || 3000 });
+  return fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ system: system, messages: messages, max_tokens: maxTokens || 1200 })
+    body: bodyStr
   }).then(function(r) { return r.json(); });
 }
 
