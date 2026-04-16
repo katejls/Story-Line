@@ -116,10 +116,10 @@ export default function App() {
       msgs = prevHist.concat([{role: "user", content: uMsg}]);
     }
 
-    fetch("https://api.anthropic.com/v1/messages", {
+    fetch("/api/chat", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({model: "claude-sonnet-4-20250514", max_tokens: 1200, system: sys, messages: msgs})
+      body: JSON.stringify({system: sys, messages: msgs, max_tokens: 1200})
     }).then(function(res) {
       return res.json();
     }).then(function(d) {
@@ -191,10 +191,10 @@ export default function App() {
     var sc = SCENARIOS.find(function(s) { return s.id === scenario; });
     var sys = "You are " + lName + ", from a " + sc.label + " story, talking to " + pName + ". Stay in character. 1-3 sentences. Emotionally engaging. Use " + pName + " name sometimes. NEVER mention AI. Personality: " + (HINTS[scenario] || "intense");
     var msgs = cHist.concat([{role: "user", content: msg}]);
-    fetch("https://api.anthropic.com/v1/messages", {
+    fetch("/api/chat", {
       method: "POST",
       headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({model: "claude-sonnet-4-20250514", max_tokens: 200, system: sys, messages: msgs})
+      body: JSON.stringify({system: sys, messages: msgs, max_tokens: 200})
     }).then(function(res) {
       return res.json();
     }).then(function(d) {
