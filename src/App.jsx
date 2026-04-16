@@ -85,6 +85,7 @@ export default function App() {
   }, [busy]);
 
   function gen(isNew, scId, p, l, v, prevHist, prevChNum, prevCurText) {
+    console.log("gen called", {isNew: isNew, scId: scId, p: p, l: l, v: v, chNum: prevChNum});
     setBusy(true); setErr("");
     var num = isNew ? 1 : prevChNum + 1;
     var sc = SCENARIOS.find(function(s) { return s.id === scId; });
@@ -100,6 +101,7 @@ export default function App() {
     else { msgs = prevHist.concat([{role: "user", content: uMsg}]); }
 
     callAPI(sys, msgs, 1200).then(function(d) {
+      console.log("API response", d);
       var txt = "";
       if (d.content) { for (var ci = 0; ci < d.content.length; ci++) { txt += (d.content[ci].text || ""); } }
       if (d.error) { setErr("API Error: " + (d.error.message || d.error)); setBusy(false); return; }
@@ -137,7 +139,13 @@ export default function App() {
 
   function nextChapter() {
     var s = stateRef.current;
-    gen(false, s.scenario, s.pName, s.lName, s.vName, s.hist, s.chNum, s.curText);
+    console.log("nextChapter called", s);
+    if (!s.scenario || !s.pName || !s.lName) {
+      console.error("Missing state for next chapter", s);
+      setErr("Missing data. Please start a new story.");
+      return;
+    }
+    gen(false, s.scenario, s.pName, s.lName, s.vName || "", s.hist, s.chNum, s.curText);
   }
 
   function doReset() {
