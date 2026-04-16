@@ -5,9 +5,9 @@ var SCENARIOS = [
   { id: "revenge", emoji: "\u{1F5E1}\uFE0F", label: "Revenge", desc: "They destroyed your life. You came back stronger.", color: "#c0392b", bg: "linear-gradient(135deg, #150808, #0a0a0f)" },
   { id: "reborn", emoji: "\u{1F504}", label: "Reborn", desc: "You died. You woke up 10 years in the past.", color: "#2e86de", bg: "linear-gradient(135deg, #080d15, #0a0a0f)" },
   { id: "mafia", emoji: "\u{1F5A4}", label: "Mafia Love", desc: "Dangerous. Possessive. Completely obsessed with you.", color: "#6c5ce7", bg: "linear-gradient(135deg, #0d0a15, #0a0a0f)" },
-  { id: "werewolf", emoji: "\u{1F43A}", label: "Fated Mate", desc: "The Alpha who has been searching for you forever", color: "#e17055", bg: "linear-gradient(135deg, #150d08, #0a0a0f)" },
+  { id: "werewolf", emoji: "\u{1F43A}", label: "Fated Mate", desc: "The Alpha who has been searching for you their whole life", color: "#e17055", bg: "linear-gradient(135deg, #150d08, #0a0a0f)" },
   { id: "enemies", emoji: "\u{1F525}", label: "Enemies to Lovers", desc: "You hate each other. Until you do not.", color: "#fd79a8", bg: "linear-gradient(135deg, #150a10, #0a0a0f)" },
-  { id: "royal", emoji: "\u{1F451}", label: "Royal Affair", desc: "A forbidden love with royalty", color: "#ffeaa7", bg: "linear-gradient(135deg, #15140a, #0a0a0f)" },
+  { id: "royal", emoji: "\u{1F451}", label: "Royal Affair", desc: "A forbidden love with someone of royal blood", color: "#ffeaa7", bg: "linear-gradient(135deg, #15140a, #0a0a0f)" },
   { id: "thriller", emoji: "\u{1F52A}", label: "Dark Thriller", desc: "Trust no one. Especially the one you love.", color: "#636e72", bg: "linear-gradient(135deg, #0d0d0d, #0a0a0f)" }
 ];
 
@@ -61,6 +61,9 @@ export default function App() {
   var _ln = useState(""); var lName = _ln[0]; var setLName = _ln[1];
   var _vn = useState(""); var vName = _vn[0]; var setVName = _vn[1];
   var _en = useState(null); var ending = _en[0]; var setEnding = _en[1];
+  var _pg = useState(null); var pGender = _pg[0]; var setPGender = _pg[1];
+  var _lg = useState(null); var lGender = _lg[0]; var setLGender = _lg[1];
+  var _vg = useState(null); var vGender = _vg[0]; var setVGender = _vg[1];
   var _nm = useState(null); var nMode = _nm[0]; var setNMode = _nm[1];
   var _lm = useState(null); var lMode = _lm[0]; var setLMode = _lm[1];
   var _vm = useState(null); var vMode = _vm[0]; var setVMode = _vm[1];
@@ -104,16 +107,23 @@ export default function App() {
     return function() { clearInterval(iv); };
   }, [busy]);
 
-  function generateStory(scId, p, l, v, endingType) {
+  function generateStory(scId, p, l, v, endingType, pg, lg, vg) {
     setBusy(true); setErr("");
     var sc = SCENARIOS.find(function(s) { return s.id === scId; });
-    var villainLine = v ? "\n- The villain/antagonist is " + v + " - make them menacing, cunning, and a real threat" : "";
+    var pronounMap = { male: "he/him/his", female: "she/her/her", nonbinary: "they/them/their" };
+    var pPro = pronounMap[pg] || "they/them/their";
+    var lPro = pronounMap[lg] || "they/them/their";
+    var villainLine = "";
+    if (v) {
+      var vPro = pronounMap[vg] || "they/them/their";
+      villainLine = "\n- The villain is " + v + " (pronouns: " + vPro + ") - make them menacing, cunning, and a real threat";
+    }
     var setting = SETTINGS[Math.floor(Math.random() * SETTINGS.length)];
     var opening = OPENINGS[Math.floor(Math.random() * OPENINGS.length)];
     var storyId = Math.floor(Math.random() * 99999);
     var endingInstruction = ENDING_PROMPTS[endingType] || ENDING_PROMPTS.surprise;
 
-    var sys = "You write addictive, binge-worthy " + sc.label + " stories in the style of Wattpad, Dreame, and TikTok novels.\nRULES:\n- Main character is " + p + " - write in second person (you)\n- Love interest is " + l + "\n- Write a COMPLETE short story - beginning, middle, and ending\n- 1500-2000 words - make it a full satisfying read\n- Start with **[Creative Unique Title]**\n- Write in a modern, casual, emotional style - NOT formal or literary\n- Use short punchy sentences. Sentence fragments are fine.\n- Heavy on dialogue and internal thoughts\n- Make the reader FEEL everything - butterflies, heartbreak, rage, tension\n- Make " + l + " irresistible - the kind of character readers fall in love with\n- Include " + (HINTS[scId] || "tension and depth") + "\n- Be dramatic, emotional, and addictive\n- ENDING: " + endingInstruction + "\n- Story #" + storyId + " - must be completely unique" + villainLine;
+    var sys = "You write addictive, binge-worthy " + sc.label + " stories in the style of Wattpad, Dreame, and TikTok novels.\nRULES:\n- Main character is " + p + " (pronouns: " + pPro + ") - write in second person (you)\n- Love interest is " + l + " (pronouns: " + lPro + ") - use correct pronouns for them\n- Write a COMPLETE short story - beginning, middle, and ending\n- 1500-2000 words - make it a full satisfying read\n- Start with **[Creative Unique Title]**\n- Write in a modern, casual, emotional style - NOT formal or literary\n- Use short punchy sentences. Sentence fragments are fine.\n- Heavy on dialogue and internal thoughts\n- Make the reader FEEL everything - butterflies, heartbreak, rage, tension\n- Make " + l + " irresistible - the kind of character readers fall in love with\n- Include " + (HINTS[scId] || "tension and depth") + "\n- Be dramatic, emotional, and addictive\n- ENDING: " + endingInstruction + "\n- Story #" + storyId + " - must be completely unique" + villainLine;
 
     var uMsg = "Write a complete personalized " + sc.label + " short story. Setting: " + setting + ". The story begins with " + opening + ". Main character: " + p + ". Love interest: " + l + "." + (v ? " Villain: " + v + "." : "") + " Include a powerful beginning, an emotional middle with rising tension, and a memorable ending. Make it unforgettable.";
 
@@ -146,17 +156,23 @@ export default function App() {
     while (v === a || v === b) v = rVillain();
     var endings = ["happy","sad","twist","open","dark","surprise"];
     var randEnding = endings[Math.floor(Math.random() * endings.length)];
+    var genders = ["male","female","nonbinary"];
+    var rpg = genders[Math.floor(Math.random() * genders.length)];
+    var rlg = genders[Math.floor(Math.random() * genders.length)];
+    var rvg = genders[Math.floor(Math.random() * genders.length)];
     setScenario(scId); setPName(a); setLName(b); setVName(v); setEnding(randEnding);
-    generateStory(scId, a, b, v, randEnding);
+    setPGender(rpg); setLGender(rlg); setVGender(rvg);
+    generateStory(scId, a, b, v, randEnding, rpg, rlg, rvg);
   }
 
   function customStart() {
-    generateStory(scenario, pName, lName, vName, ending);
+    generateStory(scenario, pName, lName, vName, ending, pGender, lGender, vGender);
   }
 
   function doReset() {
     setScreen("scenario"); setScenario(null); setCurText(""); setShown(""); setErr("");
     setNMode(null); setLMode(null); setVMode(null); setEnding(null);
+    setPGender(null); setLGender(null); setVGender(null);
     setPName(""); setLName(""); setVName("");
     setCMsgs([]); setCHist([]);
   }
@@ -312,6 +328,14 @@ export default function App() {
             <div style={{fontSize: 14, fontWeight: 600}}>Random name</div>
           </div>
           {nMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={pl}>{pName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setPName(rName()); }}>{"\u{1F3B2}"}</button></div>}
+          {(nMode === "custom" || nMode === "random") && <div style={{marginTop: 10}}>
+            <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>GENDER</div>
+            <div style={{display: "flex", gap: 6}}>
+              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: pGender === "female" ? accent + "20" : "transparent", color: pGender === "female" ? accent : "#6b645a", borderColor: pGender === "female" ? accent : "#1a1a24"})} onClick={function() { setPGender("female"); }}>Female</button>
+              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: pGender === "male" ? accent + "20" : "transparent", color: pGender === "male" ? accent : "#6b645a", borderColor: pGender === "male" ? accent : "#1a1a24"})} onClick={function() { setPGender("male"); }}>Male</button>
+              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: pGender === "nonbinary" ? accent + "20" : "transparent", color: pGender === "nonbinary" ? accent : "#6b645a", borderColor: pGender === "nonbinary" ? accent : "#1a1a24"})} onClick={function() { setPGender("nonbinary"); }}>Non-binary</button>
+            </div>
+          </div>}
         </div>
 
         <div style={divider} />
@@ -328,6 +352,14 @@ export default function App() {
             <div style={{fontSize: 14, fontWeight: 600}}>Random name</div>
           </div>
           {lMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={pl}>{lName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setLName(rName()); }}>{"\u{1F3B2}"}</button></div>}
+          {(lMode === "custom" || lMode === "random") && <div style={{marginTop: 10}}>
+            <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>GENDER</div>
+            <div style={{display: "flex", gap: 6}}>
+              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: lGender === "female" ? accent + "20" : "transparent", color: lGender === "female" ? accent : "#6b645a", borderColor: lGender === "female" ? accent : "#1a1a24"})} onClick={function() { setLGender("female"); }}>Female</button>
+              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: lGender === "male" ? accent + "20" : "transparent", color: lGender === "male" ? accent : "#6b645a", borderColor: lGender === "male" ? accent : "#1a1a24"})} onClick={function() { setLGender("male"); }}>Male</button>
+              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: lGender === "nonbinary" ? accent + "20" : "transparent", color: lGender === "nonbinary" ? accent : "#6b645a", borderColor: lGender === "nonbinary" ? accent : "#1a1a24"})} onClick={function() { setLGender("nonbinary"); }}>Non-binary</button>
+            </div>
+          </div>}
         </div>
 
         <div style={divider} />
@@ -344,7 +376,15 @@ export default function App() {
             <div style={{fontSize: 14, fontWeight: 600}}>Random villain</div>
           </div>
           {vMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={Object.assign({}, pl, {background: "#c0392b18", color: "#c0392b"})}>{vName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setVName(rVillain()); }}>{"\u{1F3B2}"}</button></div>}
-          <div style={Object.assign({}, cd(vMode === "skip", "#636e72"), {marginTop: 8})} onClick={function() { setVMode("skip"); setVName(""); }}>
+          {(vMode === "custom" || vMode === "random") && <div style={{marginTop: 10}}>
+            <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>GENDER</div>
+            <div style={{display: "flex", gap: 6}}>
+              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "female" ? "#c0392b20" : "transparent", color: vGender === "female" ? "#c0392b" : "#6b645a", borderColor: vGender === "female" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("female"); }}>Female</button>
+              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "male" ? "#c0392b20" : "transparent", color: vGender === "male" ? "#c0392b" : "#6b645a", borderColor: vGender === "male" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("male"); }}>Male</button>
+              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "nonbinary" ? "#c0392b20" : "transparent", color: vGender === "nonbinary" ? "#c0392b" : "#6b645a", borderColor: vGender === "nonbinary" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("nonbinary"); }}>Non-binary</button>
+            </div>
+          </div>}
+          <div style={Object.assign({}, cd(vMode === "skip", "#636e72"), {marginTop: 8})} onClick={function() { setVMode("skip"); setVName(""); setVGender(null); }}>
             <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u2796"}</div>
             <div style={{fontSize: 14, fontWeight: 600, color: "#636e72"}}>No villain</div>
           </div>
@@ -352,7 +392,7 @@ export default function App() {
 
         <div style={{display: "flex", gap: 10, marginTop: 16}}>
           <button style={Object.assign({}, b2, {flex: 1})} onClick={function() { setScreen("scenario"); }}>Back</button>
-          <button style={Object.assign({}, bt(!pName || !lName), {flex: 2})} onClick={function() { if (pName && lName) setScreen("endingSelect"); }} disabled={!pName || !lName}>Choose Ending</button>
+          <button style={Object.assign({}, bt(!pName || !lName || !pGender || !lGender), {flex: 2})} onClick={function() { if (pName && lName && pGender && lGender) setScreen("endingSelect"); }} disabled={!pName || !lName || !pGender || !lGender}>Choose Ending</button>
         </div>
       </div>
       <style>{CSS_TEXT}</style>
