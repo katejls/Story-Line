@@ -108,13 +108,13 @@ export default function App() {
     var storyId = Math.floor(Math.random() * 99999);
     var endingInstruction = ENDING_PROMPTS[endingType] || ENDING_PROMPTS.surprise;
 
-    var sys = "You write addictive, binge-worthy " + sc.label + " stories in the style of Wattpad, Dreame, and TikTok novels.\nRULES:\n- Main character is " + p + " - write in second person (you)\n- Love interest is " + l + "\n- Write a COMPLETE short story - beginning, middle, and ending\n- 800-1200 words\n- Start with **[Creative Unique Title]**\n- Write in a modern, casual, emotional style - NOT formal or literary\n- Use short punchy sentences. Sentence fragments are fine.\n- Heavy on dialogue and internal thoughts\n- Make the reader FEEL everything - butterflies, heartbreak, rage, tension\n- Make " + l + " irresistible - the kind of character readers fall in love with\n- Include " + (HINTS[scId] || "tension and depth") + "\n- Be dramatic, emotional, and addictive\n- ENDING: " + endingInstruction + "\n- Story #" + storyId + " - must be completely unique" + villainLine;
+    var sys = "You write addictive, binge-worthy " + sc.label + " stories in the style of Wattpad, Dreame, and TikTok novels.\nRULES:\n- Main character is " + p + " - write in second person (you)\n- Love interest is " + l + "\n- Write a COMPLETE short story - beginning, middle, and ending\n- 1500-2000 words - make it a full satisfying read\n- Start with **[Creative Unique Title]**\n- Write in a modern, casual, emotional style - NOT formal or literary\n- Use short punchy sentences. Sentence fragments are fine.\n- Heavy on dialogue and internal thoughts\n- Make the reader FEEL everything - butterflies, heartbreak, rage, tension\n- Make " + l + " irresistible - the kind of character readers fall in love with\n- Include " + (HINTS[scId] || "tension and depth") + "\n- Be dramatic, emotional, and addictive\n- ENDING: " + endingInstruction + "\n- Story #" + storyId + " - must be completely unique" + villainLine;
 
     var uMsg = "Write a complete personalized " + sc.label + " short story. Setting: " + setting + ". The story begins with " + opening + ". Main character: " + p + ". Love interest: " + l + "." + (v ? " Villain: " + v + "." : "") + " Include a powerful beginning, an emotional middle with rising tension, and a memorable ending. Make it unforgettable.";
 
     var msgs = [{role: "user", content: uMsg}];
 
-    callAPI(sys, msgs, 1500).then(function(d) {
+    callAPI(sys, msgs, 3000).then(function(d) {
       console.log("API response", d);
       var txt = "";
       if (d.content) { for (var ci = 0; ci < d.content.length; ci++) { txt += (d.content[ci].text || ""); } }
