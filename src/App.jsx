@@ -49,16 +49,16 @@ var SIDE_ROLES = [
 ];
 
 var ROLE_PROMPTS = {
-  villain: "who is the villain - dangerous and threatening",
-  ex: "who is the ex-lover returning to cause jealousy and force impossible choices",
-  affair: "who creates cheating/affair drama - stolen moments, guilt, fear of getting caught",
-  bestfriend: "who is the best friend secretly in love with the main character",
-  rival: "who is the love rival pursuing the love interest",
-  boss: "who is the boss creating forbidden power dynamics and tension",
-  family: "who is a step-sibling or adopted family with forbidden attraction",
-  secretary: "who is the assistant obsessed with their boss, knows all secrets",
-  admirer: "who is a secret admirer sending anonymous gifts - romantic or dangerous",
-  stranger: "who is a mysterious stranger with unknown motives"
+  villain: "who is the villain - dangerous, manipulative, will hurt anyone to get what they want",
+  ex: "who is the love interest's ex showing up trying to win them back - making the reader insecure and jealous",
+  affair: "who flirts with or gets too close to the love interest - creating suspicion, jealousy, and heartbreak. The reader catches them together or hears rumors. Drama about trust being broken",
+  bestfriend: "who is secretly in love with the love interest and tries to steal them away behind the reader's back",
+  rival: "who openly pursues the love interest, flirting and touching them in front of the reader to provoke jealousy",
+  boss: "who has power over the love interest and uses it to get close to them, making the reader feel helpless",
+  family: "who is connected through family (step-sibling, adopted) creating forbidden closeness with the love interest",
+  secretary: "who works closely with the love interest and is clearly obsessed with them - the reader sees the signs",
+  admirer: "who is a secret admirer of the love interest - leaving them gifts and notes, identity unknown, driving the reader crazy",
+  stranger: "who appears out of nowhere and instantly has chemistry with the love interest - who are they?"
 };
 
 function rName(gender) {
@@ -204,7 +204,7 @@ export default function App() {
     var storyId = Math.floor(Math.random() * 99999);
     var endingInstruction = ENDING_PROMPTS[endingType] || ENDING_PROMPTS.surprise;
 
-    var sys = "You write addictive " + sc.label + " stories in Wattpad and Dreame style. RULES: Main character is " + p + " (pronouns: " + pPro + ") in second person (you). Love interest is " + l + " (pronouns: " + lPro + "). Write a COMPLETE short story with beginning, middle, and ending. 800-1000 words. Start with a creative unique title in bold. Modern casual emotional style, not formal. Short punchy sentences. Heavy dialogue and internal thoughts. Make reader feel butterflies, heartbreak, rage, tension. Make " + l + " irresistible. Include " + (HINTS[scId] || "tension and depth") + ". Be dramatic and addictive. ENDING STYLE: " + endingInstruction + ". Story number " + storyId + " must be unique." + (villainLine ? " " + villainLine : "");
+    var sys = "You write addictive " + sc.label + " stories like the top novels on Wattpad and Dreame. RULES: Main character is " + p + " (pronouns: " + pPro + ") in second person (you). Love interest is " + l + " (pronouns: " + lPro + "). Write a COMPLETE story with beginning, middle, and ending. 800-1000 words. Start with a bold creative title. Write casual, raw, emotional - like texting your best friend about the craziest thing that just happened. Short punchy lines. Lots of dialogue. Internal thoughts in italics. Include jealousy, tension, almost-kiss moments, heated arguments, heartbreak, or intense chemistry. Make " + l + " the kind of person readers lose sleep over. Include " + (HINTS[scId] || "tension and depth") + ". Go HARD on the drama. No holding back. ENDING: " + endingInstruction + ". Story " + storyId + " must be unique." + (villainLine ? " " + villainLine : "");
 
     var uMsg = "Write a complete personalized " + sc.label + " short story. Setting: " + setting + ". The story begins with " + opening + ". Main character: " + p + ". Love interest: " + l + "." + (v ? " Villain: " + v + "." : "") + " Include a powerful beginning, an emotional middle with rising tension, and a memorable ending. Make it unforgettable.";
 
