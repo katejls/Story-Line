@@ -87,6 +87,18 @@ var ENDING_PROMPTS = {
   surprise: "End with whatever ending fits the story best - could be happy, tragic, twisted, or anything. Surprise the reader."
 };
 
+var SPICE_LEVELS = [
+  { id: "clean", emoji: "\u{2764}\uFE0F", label: "Clean", desc: "Sweet romance, wholesome love" },
+  { id: "spicy", emoji: "\u{1F336}\uFE0F", label: "Spicy", desc: "Heated tension, almost-kisses, fade to black" },
+  { id: "mature", emoji: "\u{1F525}", label: "Mature", desc: "Steamy scenes, intense desire, suggestive" }
+];
+
+var SPICE_PROMPTS = {
+  clean: "Keep the romance sweet and wholesome. Tender moments, hand-holding, forehead kisses. No steamy or suggestive content.",
+  spicy: "Include heated romantic tension - lingering touches, almost-kiss moments, intense eye contact, breathless proximity. Suggestive but fade to black before anything explicit.",
+  mature: "Include steamy mature romance scenes - passionate kisses, wandering hands, pressing against walls, heavy breathing, clothes being pulled, staying the night. Be intensely suggestive and sensual but fade to black before anything fully explicit. Focus on desire, wanting, and the tension of bodies close together."
+};
+
 var FONT = "Cormorant Garamond,Georgia,serif";
 var MONO = "DM Mono,Courier New,monospace";
 var CSS_TEXT = "@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap');*{box-sizing:border-box;margin:0;padding:0}::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1a1a24;border-radius:4px}@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}@keyframes spin{to{transform:rotate(360deg)}}input::placeholder{color:#3a3530}";
@@ -122,6 +134,7 @@ export default function App() {
   var _ln = useState(""); var lName = _ln[0]; var setLName = _ln[1];
   var _vn = useState(""); var vName = _vn[0]; var setVName = _vn[1];
   var _en = useState(null); var ending = _en[0]; var setEnding = _en[1];
+  var _sp = useState("spicy"); var spiceLevel = _sp[0]; var setSpiceLevel = _sp[1];
   var _pg = useState(null); var pGender = _pg[0]; var setPGender = _pg[1];
   var _lg = useState(null); var lGender = _lg[0]; var setLGender = _lg[1];
   var _vg = useState(null); var vGender = _vg[0]; var setVGender = _vg[1];
@@ -187,7 +200,7 @@ export default function App() {
     return function() { clearInterval(iv); };
   }, [busy]);
 
-  function generateStory(scId, p, l, v, endingType, pg, lg, vg, vr) {
+  function generateStory(scId, p, l, v, endingType, pg, lg, vg, vr, spice) {
     setBusy(true); setErr("");
     var sc = SCENARIOS.find(function(s) { return s.id === scId; });
     var pronounMap = { male: "he/him/his", female: "she/her/her", nonbinary: "they/them/their" };
@@ -204,7 +217,8 @@ export default function App() {
     var storyId = Math.floor(Math.random() * 99999);
     var endingInstruction = ENDING_PROMPTS[endingType] || ENDING_PROMPTS.surprise;
 
-    var sys = "You write addictive " + sc.label + " stories like the top novels on Wattpad and Dreame. RULES: Main character is " + p + " (pronouns: " + pPro + ") in second person (you). Love interest is " + l + " (pronouns: " + lPro + "). Write a COMPLETE story with beginning, middle, and ending. 800-1000 words. Start with a bold creative title. Write casual, raw, emotional - like texting your best friend about the craziest thing that just happened. Short punchy lines. Lots of dialogue. Internal thoughts in italics. Include jealousy, tension, almost-kiss moments, heated arguments, heartbreak, or intense chemistry. Make " + l + " the kind of person readers lose sleep over. Include " + (HINTS[scId] || "tension and depth") + ". Go HARD on the drama. No holding back. ENDING: " + endingInstruction + ". Story " + storyId + " must be unique." + (villainLine ? " " + villainLine : "");
+    var spiceInstruction = SPICE_PROMPTS[spice] || SPICE_PROMPTS.spicy;
+    var sys = "You write addictive " + sc.label + " stories like the top novels on Wattpad and Dreame. RULES: Main character is " + p + " (pronouns: " + pPro + ") in second person (you). Love interest is " + l + " (pronouns: " + lPro + "). Write a COMPLETE story with beginning, middle, and ending. 800-1000 words. Start with a bold creative title. Write casual, raw, emotional. Short punchy lines. Lots of dialogue. Include jealousy, tension, heated arguments, heartbreak, or intense chemistry. Make " + l + " irresistible. Include " + (HINTS[scId] || "tension and depth") + ". Go HARD on the drama. ROMANCE LEVEL: " + spiceInstruction + " ENDING: " + endingInstruction + ". Story " + storyId + " must be unique." + (villainLine ? " " + villainLine : "");
 
     var uMsg = "Write a complete personalized " + sc.label + " short story. Setting: " + setting + ". The story begins with " + opening + ". Main character: " + p + ". Love interest: " + l + "." + (v ? " Villain: " + v + "." : "") + " Include a powerful beginning, an emotional middle with rising tension, and a memorable ending. Make it unforgettable.";
 
@@ -259,19 +273,21 @@ export default function App() {
     var randEnding = endings[Math.floor(Math.random() * endings.length)];
     var roleIds = ["villain","ex","affair","bestfriend","rival","boss","family","secretary","admirer","stranger"];
     var rvr = roleIds[Math.floor(Math.random() * roleIds.length)];
+    var spices = ["clean","spicy","mature"];
+    var rsp = spices[Math.floor(Math.random() * spices.length)];
     setScenario(scId); setPName(a); setLName(b); setVName(v); setEnding(randEnding);
-    setPGender(rpg); setLGender(rlg); setVGender(rvg); setVRole(rvr);
-    generateStory(scId, a, b, v, randEnding, rpg, rlg, rvg, rvr);
+    setPGender(rpg); setLGender(rlg); setVGender(rvg); setVRole(rvr); setSpiceLevel(rsp);
+    generateStory(scId, a, b, v, randEnding, rpg, rlg, rvg, rvr, rsp);
   }
 
   function customStart() {
-    generateStory(scenario, pName, lName, vName, ending, pGender, lGender, vGender, vRole);
+    generateStory(scenario, pName, lName, vName, ending, pGender, lGender, vGender, vRole, spiceLevel);
   }
 
   function doReset() {
     setScreen("scenario"); setScenario(null); setCurText(""); setShown(""); setErr("");
     setNMode(null); setLMode(null); setVMode(null); setEnding(null);
-    setPGender(null); setLGender(null); setVGender(null); setVRole(null);
+    setPGender(null); setLGender(null); setVGender(null); setVRole(null); setSpiceLevel("spicy");
     setPName(""); setLName(""); setVName("");
     setCMsgs([]); setCHist([]); setActiveStoryId(null);
   }
@@ -564,8 +580,21 @@ export default function App() {
           ); })}
         </div>
 
+        {ending && <div style={{marginTop: 20}}>
+          <div style={{fontSize: 12, letterSpacing: 3, color: "#5a544a", fontFamily: MONO, textTransform: "uppercase", marginBottom: 10}}>Romance level</div>
+          <div style={{display: "flex", gap: 8}}>
+            {SPICE_LEVELS.map(function(s) { return (
+              <button key={s.id} style={Object.assign({}, b2, {flex: 1, padding: "12px 8px", textAlign: "center", background: spiceLevel === s.id ? accent + "20" : "transparent", color: spiceLevel === s.id ? accent : "#6b645a", borderColor: spiceLevel === s.id ? accent : "#1a1a24"})} onClick={function() { setSpiceLevel(s.id); }}>
+                <div style={{fontSize: 20}}>{s.emoji}</div>
+                <div style={{fontSize: 12, fontWeight: 600, marginTop: 4}}>{s.label}</div>
+                <div style={{fontSize: 10, color: "#5a544a", marginTop: 2}}>{s.desc}</div>
+              </button>
+            ); })}
+          </div>
+        </div>}
+
         {ending && (
-          <div style={{marginTop: 20, display: "flex", flexDirection: "column", gap: 8}}>
+          <div style={{marginTop: 16, display: "flex", flexDirection: "column", gap: 8}}>
             <button style={bt(false)} onClick={customStart}>Write My Story</button>
           </div>
         )}
