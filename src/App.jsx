@@ -20,10 +20,23 @@ var ENDINGS = [
   { id: "surprise", emoji: "\u{1F381}", label: "Surprise Me", desc: "Let fate decide. No spoilers.", color: "#fdcb6e" }
 ];
 
-var NAMES = ["Kael","Damon","Lucian","Ren","Atlas","Cassian","Ezra","Zane","Orion","Silas","Aria","Luna","Seraphina","Ivy","Nova","Celeste","Elara","Freya","Scarlett","Violet","Jace","Rhys","Asher","Rowan","Felix","Mira","Sage","Kai","Lena","Theo","Quinn","River","Blake","Jade","Harlow","Suki","Cleo","Axel","Cruz","Emery","Wren","Phoenix","Sterling","Lyra","Ember"];
-var VILLAIN_NAMES = ["Malakai","Thorne","Ravenna","Draven","Lilith","Viktor","Morgana","Cain","Nyx","Soren","Bellatrix","Nero","Dante","Vesper","Lucrezia","Azazel","Delilah","Cyrus","Isolde","Thanatos","Kira","Damien","Selene","Ragnar","Vex","Crimson","Alaric","Jezebel","Obsidian","Raven","Mordecai","Sarai","Fenrir","Viper","Electra","Wraith","Scorpius","Tempest"];
-function rName() { return NAMES[Math.floor(Math.random() * NAMES.length)]; }
-function rVillain() { return VILLAIN_NAMES[Math.floor(Math.random() * VILLAIN_NAMES.length)]; }
+var MALE_NAMES = ["Kael","Damon","Lucian","Ren","Atlas","Cassian","Ezra","Zane","Orion","Silas","Jace","Rhys","Asher","Rowan","Felix","Theo","Axel","Cruz","Sterling","Kai","Cole","Marcus","Adrian","Dante","Rafael","Matteo","Levi","Elias","Caleb","Xavier"];
+var FEMALE_NAMES = ["Aria","Luna","Seraphina","Ivy","Nova","Celeste","Elara","Freya","Scarlett","Violet","Mira","Lena","Jade","Harlow","Suki","Cleo","Lyra","Ember","Sage","Wren","Elena","Maya","Zara","Valentina","Iris","Camille","Nadia","Kira","Aurora","Stella"];
+var NEUTRAL_NAMES = ["Quinn","River","Blake","Emery","Phoenix","Sage","Rowan","Kai","Wren","Avery","Morgan","Dakota","Finley","Skyler","Reese","Jordan","Hayden","Remi","Shiloh","Arden"];
+var MALE_VILLAINS = ["Malakai","Thorne","Draven","Viktor","Cain","Soren","Nero","Dante","Azazel","Cyrus","Thanatos","Damien","Ragnar","Alaric","Mordecai","Fenrir","Scorpius","Obsidian"];
+var FEMALE_VILLAINS = ["Ravenna","Lilith","Morgana","Nyx","Bellatrix","Vesper","Lucrezia","Delilah","Isolde","Selene","Jezebel","Electra","Tempest","Sarai","Viper","Crimson","Raven"];
+var NEUTRAL_VILLAINS = ["Vex","Wraith","Crimson","Raven","Obsidian","Tempest","Phoenix","Storm","Shadow","Onyx"];
+
+function rName(gender) {
+  if (gender === "male") return MALE_NAMES[Math.floor(Math.random() * MALE_NAMES.length)];
+  if (gender === "female") return FEMALE_NAMES[Math.floor(Math.random() * FEMALE_NAMES.length)];
+  return NEUTRAL_NAMES[Math.floor(Math.random() * NEUTRAL_NAMES.length)];
+}
+function rVillain(gender) {
+  if (gender === "male") return MALE_VILLAINS[Math.floor(Math.random() * MALE_VILLAINS.length)];
+  if (gender === "female") return FEMALE_VILLAINS[Math.floor(Math.random() * FEMALE_VILLAINS.length)];
+  return NEUTRAL_VILLAINS[Math.floor(Math.random() * NEUTRAL_VILLAINS.length)];
+}
 
 var HINTS = { revenge:"cunning plans, betrayal reveals, power shifts", reborn:"memories from past life, using future knowledge", mafia:"danger, possessiveness, forbidden attraction", billionaire:"power dynamics, luxury settings, intense attraction", werewolf:"the mate bond, pack dynamics, primal instincts", enemies:"banter, tension, forced proximity", royal:"duty vs desire, elegance, forbidden love", thriller:"suspense, paranoia, dangerous attraction" };
 var TITLES_MAP = { mafia:"THE DON", billionaire:"CEO", werewolf:"ALPHA", royal:"CROWN PRINCE", revenge:"YOUR ALLY", reborn:"PAST LIFE", enemies:"YOUR RIVAL", thriller:"SUSPECT" };
@@ -165,15 +178,15 @@ export default function App() {
   }
 
   function quickStart(scId) {
-    var a = rName(); var b = rName(); var v = rVillain();
-    while (b === a) b = rName();
-    while (v === a || v === b) v = rVillain();
-    var endings = ["happy","sad","twist","open","dark","surprise"];
-    var randEnding = endings[Math.floor(Math.random() * endings.length)];
-    var genders = ["male","female","nonbinary"];
+    var genders = ["male","female"];
     var rpg = genders[Math.floor(Math.random() * genders.length)];
     var rlg = genders[Math.floor(Math.random() * genders.length)];
     var rvg = genders[Math.floor(Math.random() * genders.length)];
+    var a = rName(rpg); var b = rName(rlg); var v = rVillain(rvg);
+    while (b === a) b = rName(rlg);
+    while (v === a || v === b) v = rVillain(rvg);
+    var endings = ["happy","sad","twist","open","dark","surprise"];
+    var randEnding = endings[Math.floor(Math.random() * endings.length)];
     setScenario(scId); setPName(a); setLName(b); setVName(v); setEnding(randEnding);
     setPGender(rpg); setLGender(rlg); setVGender(rvg);
     generateStory(scId, a, b, v, randEnding, rpg, rlg, rvg);
@@ -328,27 +341,27 @@ export default function App() {
       <div style={C}>
         <div style={{textAlign: "center", padding: "24px 0 8px"}}><div style={LO}>storyline</div></div>
         <div style={{fontSize: 10, letterSpacing: 4, color: "#3a3530", fontFamily: MONO, marginBottom: 14}}>STEP 2 OF 3</div>
-        <h2 style={{fontSize: 24, fontWeight: 300, marginBottom: 16}}>Name your characters</h2>
+        <h2 style={{fontSize: 24, fontWeight: 300, marginBottom: 16}}>Create your characters</h2>
 
         <div style={{marginBottom: 20}}>
           <div style={{fontSize: 12, letterSpacing: 3, color: "#5a544a", fontFamily: MONO, textTransform: "uppercase", marginBottom: 10}}>You (main character)</div>
-          <div style={cd(nMode === "custom", accent)} onClick={function() { setNMode("custom"); setPName(""); }}>
-            <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u270D\uFE0F"}</div>
-            <div style={{fontSize: 14, fontWeight: 600}}>Type my name</div>
+          <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>YOUR GENDER</div>
+          <div style={{display: "flex", gap: 6, marginBottom: 10}}>
+            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: pGender === "female" ? accent + "20" : "transparent", color: pGender === "female" ? accent : "#6b645a", borderColor: pGender === "female" ? accent : "#1a1a24"})} onClick={function() { setPGender("female"); if (nMode === "random") setPName(rName("female")); }}>Female</button>
+            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: pGender === "male" ? accent + "20" : "transparent", color: pGender === "male" ? accent : "#6b645a", borderColor: pGender === "male" ? accent : "#1a1a24"})} onClick={function() { setPGender("male"); if (nMode === "random") setPName(rName("male")); }}>Male</button>
+            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: pGender === "nonbinary" ? accent + "20" : "transparent", color: pGender === "nonbinary" ? accent : "#6b645a", borderColor: pGender === "nonbinary" ? accent : "#1a1a24"})} onClick={function() { setPGender("nonbinary"); if (nMode === "random") setPName(rName("nonbinary")); }}>Non-binary</button>
           </div>
-          {nMode === "custom" && <input style={Object.assign({}, inp, {marginTop: 8})} placeholder="Your name..." value={pName} onChange={function(e) { setPName(e.target.value); }} autoFocus />}
-          <div style={Object.assign({}, cd(nMode === "random", accent), {marginTop: 8})} onClick={function() { setNMode("random"); setPName(rName()); }}>
-            <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u{1F3B2}"}</div>
-            <div style={{fontSize: 14, fontWeight: 600}}>Random name</div>
-          </div>
-          {nMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={pl}>{pName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setPName(rName()); }}>{"\u{1F3B2}"}</button></div>}
-          {(nMode === "custom" || nMode === "random") && <div style={{marginTop: 10}}>
-            <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>YOUR GENDER</div>
-            <div style={{display: "flex", gap: 6}}>
-              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: pGender === "female" ? accent + "20" : "transparent", color: pGender === "female" ? accent : "#6b645a", borderColor: pGender === "female" ? accent : "#1a1a24"})} onClick={function() { setPGender("female"); }}>Female</button>
-              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: pGender === "male" ? accent + "20" : "transparent", color: pGender === "male" ? accent : "#6b645a", borderColor: pGender === "male" ? accent : "#1a1a24"})} onClick={function() { setPGender("male"); }}>Male</button>
-              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: pGender === "nonbinary" ? accent + "20" : "transparent", color: pGender === "nonbinary" ? accent : "#6b645a", borderColor: pGender === "nonbinary" ? accent : "#1a1a24"})} onClick={function() { setPGender("nonbinary"); }}>Non-binary</button>
+          {pGender && <div>
+            <div style={cd(nMode === "custom", accent)} onClick={function() { setNMode("custom"); setPName(""); }}>
+              <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u270D\uFE0F"}</div>
+              <div style={{fontSize: 14, fontWeight: 600}}>Type my name</div>
             </div>
+            {nMode === "custom" && <input style={Object.assign({}, inp, {marginTop: 8})} placeholder="Your name..." value={pName} onChange={function(e) { setPName(e.target.value); }} autoFocus />}
+            <div style={Object.assign({}, cd(nMode === "random", accent), {marginTop: 8})} onClick={function() { setNMode("random"); setPName(rName(pGender)); }}>
+              <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u{1F3B2}"}</div>
+              <div style={{fontSize: 14, fontWeight: 600}}>Random name</div>
+            </div>
+            {nMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={pl}>{pName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setPName(rName(pGender)); }}>{"\u{1F3B2}"}</button></div>}
           </div>}
         </div>
 
@@ -356,23 +369,23 @@ export default function App() {
 
         <div style={{marginBottom: 20}}>
           <div style={{fontSize: 12, letterSpacing: 3, color: "#5a544a", fontFamily: MONO, textTransform: "uppercase", marginBottom: 10}}>Love interest / ally</div>
-          <div style={cd(lMode === "custom", accent)} onClick={function() { setLMode("custom"); setLName(""); }}>
-            <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u270D\uFE0F"}</div>
-            <div style={{fontSize: 14, fontWeight: 600}}>Type their name</div>
+          <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>THEIR GENDER</div>
+          <div style={{display: "flex", gap: 6, marginBottom: 10}}>
+            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: lGender === "female" ? accent + "20" : "transparent", color: lGender === "female" ? accent : "#6b645a", borderColor: lGender === "female" ? accent : "#1a1a24"})} onClick={function() { setLGender("female"); if (lMode === "random") setLName(rName("female")); }}>Female</button>
+            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: lGender === "male" ? accent + "20" : "transparent", color: lGender === "male" ? accent : "#6b645a", borderColor: lGender === "male" ? accent : "#1a1a24"})} onClick={function() { setLGender("male"); if (lMode === "random") setLName(rName("male")); }}>Male</button>
+            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: lGender === "nonbinary" ? accent + "20" : "transparent", color: lGender === "nonbinary" ? accent : "#6b645a", borderColor: lGender === "nonbinary" ? accent : "#1a1a24"})} onClick={function() { setLGender("nonbinary"); if (lMode === "random") setLName(rName("nonbinary")); }}>Non-binary</button>
           </div>
-          {lMode === "custom" && <input style={Object.assign({}, inp, {marginTop: 8})} placeholder="Love interest name..." value={lName} onChange={function(e) { setLName(e.target.value); }} />}
-          <div style={Object.assign({}, cd(lMode === "random", accent), {marginTop: 8})} onClick={function() { setLMode("random"); setLName(rName()); }}>
-            <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u{1F3B2}"}</div>
-            <div style={{fontSize: 14, fontWeight: 600}}>Random name</div>
-          </div>
-          {lMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={pl}>{lName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setLName(rName()); }}>{"\u{1F3B2}"}</button></div>}
-          {(lMode === "custom" || lMode === "random") && <div style={{marginTop: 10}}>
-            <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>THEIR GENDER</div>
-            <div style={{display: "flex", gap: 6}}>
-              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: lGender === "female" ? accent + "20" : "transparent", color: lGender === "female" ? accent : "#6b645a", borderColor: lGender === "female" ? accent : "#1a1a24"})} onClick={function() { setLGender("female"); }}>Female</button>
-              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: lGender === "male" ? accent + "20" : "transparent", color: lGender === "male" ? accent : "#6b645a", borderColor: lGender === "male" ? accent : "#1a1a24"})} onClick={function() { setLGender("male"); }}>Male</button>
-              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: lGender === "nonbinary" ? accent + "20" : "transparent", color: lGender === "nonbinary" ? accent : "#6b645a", borderColor: lGender === "nonbinary" ? accent : "#1a1a24"})} onClick={function() { setLGender("nonbinary"); }}>Non-binary</button>
+          {lGender && <div>
+            <div style={cd(lMode === "custom", accent)} onClick={function() { setLMode("custom"); setLName(""); }}>
+              <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u270D\uFE0F"}</div>
+              <div style={{fontSize: 14, fontWeight: 600}}>Type their name</div>
             </div>
+            {lMode === "custom" && <input style={Object.assign({}, inp, {marginTop: 8})} placeholder="Love interest name..." value={lName} onChange={function(e) { setLName(e.target.value); }} />}
+            <div style={Object.assign({}, cd(lMode === "random", accent), {marginTop: 8})} onClick={function() { setLMode("random"); setLName(rName(lGender)); }}>
+              <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u{1F3B2}"}</div>
+              <div style={{fontSize: 14, fontWeight: 600}}>Random name</div>
+            </div>
+            {lMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={pl}>{lName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setLName(rName(lGender)); }}>{"\u{1F3B2}"}</button></div>}
           </div>}
         </div>
 
@@ -380,23 +393,23 @@ export default function App() {
 
         <div style={{marginBottom: 20}}>
           <div style={{fontSize: 12, letterSpacing: 3, color: "#8b4545", fontFamily: MONO, textTransform: "uppercase", marginBottom: 10}}>Villain (optional)</div>
-          <div style={cd(vMode === "custom", "#c0392b")} onClick={function() { setVMode("custom"); setVName(""); }}>
-            <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u270D\uFE0F"}</div>
-            <div style={{fontSize: 14, fontWeight: 600}}>Type villain name</div>
+          <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>VILLAIN GENDER</div>
+          <div style={{display: "flex", gap: 6, marginBottom: 10}}>
+            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "female" ? "#c0392b20" : "transparent", color: vGender === "female" ? "#c0392b" : "#6b645a", borderColor: vGender === "female" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("female"); if (vMode === "random") setVName(rVillain("female")); }}>Female</button>
+            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "male" ? "#c0392b20" : "transparent", color: vGender === "male" ? "#c0392b" : "#6b645a", borderColor: vGender === "male" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("male"); if (vMode === "random") setVName(rVillain("male")); }}>Male</button>
+            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "nonbinary" ? "#c0392b20" : "transparent", color: vGender === "nonbinary" ? "#c0392b" : "#6b645a", borderColor: vGender === "nonbinary" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("nonbinary"); if (vMode === "random") setVName(rVillain("nonbinary")); }}>Non-binary</button>
           </div>
-          {vMode === "custom" && <input style={Object.assign({}, inp, {marginTop: 8})} placeholder="Villain name..." value={vName} onChange={function(e) { setVName(e.target.value); }} />}
-          <div style={Object.assign({}, cd(vMode === "random", "#c0392b"), {marginTop: 8})} onClick={function() { setVMode("random"); setVName(rVillain()); }}>
-            <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u{1F3B2}"}</div>
-            <div style={{fontSize: 14, fontWeight: 600}}>Random villain</div>
-          </div>
-          {vMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={Object.assign({}, pl, {background: "#c0392b18", color: "#c0392b"})}>{vName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setVName(rVillain()); }}>{"\u{1F3B2}"}</button></div>}
-          {(vMode === "custom" || vMode === "random") && <div style={{marginTop: 10}}>
-            <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>VILLAIN GENDER</div>
-            <div style={{display: "flex", gap: 6}}>
-              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "female" ? "#c0392b20" : "transparent", color: vGender === "female" ? "#c0392b" : "#6b645a", borderColor: vGender === "female" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("female"); }}>Female</button>
-              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "male" ? "#c0392b20" : "transparent", color: vGender === "male" ? "#c0392b" : "#6b645a", borderColor: vGender === "male" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("male"); }}>Male</button>
-              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "nonbinary" ? "#c0392b20" : "transparent", color: vGender === "nonbinary" ? "#c0392b" : "#6b645a", borderColor: vGender === "nonbinary" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("nonbinary"); }}>Non-binary</button>
+          {vGender && <div>
+            <div style={cd(vMode === "custom", "#c0392b")} onClick={function() { setVMode("custom"); setVName(""); }}>
+              <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u270D\uFE0F"}</div>
+              <div style={{fontSize: 14, fontWeight: 600}}>Type villain name</div>
             </div>
+            {vMode === "custom" && <input style={Object.assign({}, inp, {marginTop: 8})} placeholder="Villain name..." value={vName} onChange={function(e) { setVName(e.target.value); }} />}
+            <div style={Object.assign({}, cd(vMode === "random", "#c0392b"), {marginTop: 8})} onClick={function() { setVMode("random"); setVName(rVillain(vGender)); }}>
+              <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u{1F3B2}"}</div>
+              <div style={{fontSize: 14, fontWeight: 600}}>Random villain</div>
+            </div>
+            {vMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={Object.assign({}, pl, {background: "#c0392b18", color: "#c0392b"})}>{vName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setVName(rVillain(vGender)); }}>{"\u{1F3B2}"}</button></div>}
           </div>}
           <div style={Object.assign({}, cd(vMode === "skip", "#636e72"), {marginTop: 8})} onClick={function() { setVMode("skip"); setVName(""); setVGender(null); }}>
             <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u2796"}</div>
