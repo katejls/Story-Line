@@ -49,16 +49,16 @@ var SIDE_ROLES = [
 ];
 
 var ROLE_PROMPTS = {
-  villain: "who is the villain/antagonist - wants to destroy the main character or take everything from them",
-  ex: "who is the ex-lover or first love who suddenly returns - creating jealousy, unresolved feelings, and forcing the main character to choose between past and present love",
-  affair: "who is the third person in a love triangle - someone is cheating or being tempted to cheat. Create intense affair drama with guilt, stolen moments, secret meetings, and the constant fear of being caught",
-  bestfriend: "who is the best friend secretly in love with the main character or the love interest - creating hidden jealousy, loyalty conflicts, and emotional betrayal",
-  rival: "who is the love rival - actively pursuing the love interest and competing against the main character for their heart",
-  boss: "who is the boss or mentor - creating forbidden power dynamics, inappropriate tension, and blurred professional boundaries",
-  family: "who is a step-sibling, adopted sibling, or family-connected person - creating forbidden attraction, family drama, and taboo tension that they try to fight but cannot resist",
-  secretary: "who is the personal assistant or secretary - always present, knows every secret, quietly obsessed with their boss and willing to do anything",
-  admirer: "who is a secret admirer - sending anonymous gifts and notes, watching from afar, identity unknown. Are they romantic or dangerous? The mystery creates tension",
-  stranger: "who is a mysterious stranger who appeared out of nowhere - unknown motives, magnetic presence, could change everything"
+  villain: "who is the villain - dangerous and threatening",
+  ex: "who is the ex-lover returning to cause jealousy and force impossible choices",
+  affair: "who creates cheating/affair drama - stolen moments, guilt, fear of getting caught",
+  bestfriend: "who is the best friend secretly in love with the main character",
+  rival: "who is the love rival pursuing the love interest",
+  boss: "who is the boss creating forbidden power dynamics and tension",
+  family: "who is a step-sibling or adopted family with forbidden attraction",
+  secretary: "who is the assistant obsessed with their boss, knows all secrets",
+  admirer: "who is a secret admirer sending anonymous gifts - romantic or dangerous",
+  stranger: "who is a mysterious stranger with unknown motives"
 };
 
 function rName(gender) {
@@ -96,7 +96,7 @@ function callAPI(system, messages, maxTokens) {
     var payload = {
       system: system,
       messages: messages,
-      max_tokens: maxTokens || 1200
+      max_tokens: maxTokens || 2500
     };
     return fetch("/api/chat", {
       method: "POST",
@@ -204,13 +204,13 @@ export default function App() {
     var storyId = Math.floor(Math.random() * 99999);
     var endingInstruction = ENDING_PROMPTS[endingType] || ENDING_PROMPTS.surprise;
 
-    var sys = "You write addictive " + sc.label + " stories in Wattpad and Dreame style. RULES: Main character is " + p + " (pronouns: " + pPro + ") in second person (you). Love interest is " + l + " (pronouns: " + lPro + "). Write a COMPLETE short story with beginning, middle, and ending. 500-700 words. Start with a creative unique title in bold. Modern casual emotional style, not formal. Short punchy sentences. Heavy dialogue and internal thoughts. Make reader feel butterflies, heartbreak, rage, tension. Make " + l + " irresistible. Include " + (HINTS[scId] || "tension and depth") + ". Be dramatic and addictive. ENDING STYLE: " + endingInstruction + ". Story number " + storyId + " must be unique." + (villainLine ? " " + villainLine : "");
+    var sys = "You write addictive " + sc.label + " stories in Wattpad and Dreame style. RULES: Main character is " + p + " (pronouns: " + pPro + ") in second person (you). Love interest is " + l + " (pronouns: " + lPro + "). Write a COMPLETE short story with beginning, middle, and ending. 800-1000 words. Start with a creative unique title in bold. Modern casual emotional style, not formal. Short punchy sentences. Heavy dialogue and internal thoughts. Make reader feel butterflies, heartbreak, rage, tension. Make " + l + " irresistible. Include " + (HINTS[scId] || "tension and depth") + ". Be dramatic and addictive. ENDING STYLE: " + endingInstruction + ". Story number " + storyId + " must be unique." + (villainLine ? " " + villainLine : "");
 
     var uMsg = "Write a complete personalized " + sc.label + " short story. Setting: " + setting + ". The story begins with " + opening + ". Main character: " + p + ". Love interest: " + l + "." + (v ? " Villain: " + v + "." : "") + " Include a powerful beginning, an emotional middle with rising tension, and a memorable ending. Make it unforgettable.";
 
     var msgs = [{role: "user", content: uMsg}];
 
-    callAPI(sys, msgs, 1200).then(function(d) {
+    callAPI(sys, msgs, 2500).then(function(d) {
       console.log("API response", d);
       var txt = "";
       if (d.content) { for (var ci = 0; ci < d.content.length; ci++) { txt += (d.content[ci].text || ""); } }
