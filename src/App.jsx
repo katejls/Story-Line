@@ -38,22 +38,26 @@ var NEUTRAL_VILLAINS = ["Vex","Wraith","Onyx","Eclipse","Phantom","Havoc","Chaos
 var SIDE_ROLES = [
   { id: "villain", emoji: "\u{1F5A4}", label: "Villain", desc: "The antagonist who threatens everything" },
   { id: "ex", emoji: "\u{1F494}", label: "Ex / First Love", desc: "The one who came before and still lingers" },
+  { id: "affair", emoji: "\u{1F48B}", label: "The Other One", desc: "Cheating, affairs, and love triangles" },
   { id: "bestfriend", emoji: "\u{1F46F}", label: "Best Friend", desc: "Loyal but hiding their own secrets" },
   { id: "rival", emoji: "\u{1F525}", label: "Rival", desc: "Competing for the same thing - or the same person" },
   { id: "boss", emoji: "\u{1F4BC}", label: "Boss / Mentor", desc: "Authority figure with complicated motives" },
   { id: "family", emoji: "\u{1F46A}", label: "Family Member", desc: "Blood ties that complicate everything" },
   { id: "secretary", emoji: "\u{1F4CB}", label: "Assistant / Secretary", desc: "Always there, knows all your secrets" },
+  { id: "admirer", emoji: "\u{1F48C}", label: "Secret Admirer", desc: "Someone watching from the shadows, deeply obsessed" },
   { id: "stranger", emoji: "\u{1F47B}", label: "Mysterious Stranger", desc: "No one knows who they really are" }
 ];
 
 var ROLE_PROMPTS = {
   villain: "who is the villain/antagonist - menacing, cunning, and a real threat",
   ex: "who is the ex-lover or first love - creating jealousy, unresolved feelings, and emotional tension",
+  affair: "who is the other person in a love triangle or affair - creating cheating drama, guilt, betrayal, stolen moments, and impossible choices between two lovers",
   bestfriend: "who is the best friend - loyal but hiding secrets, possibly in love with the main character too",
   rival: "who is the rival - competing for the same goal or the same person, creating intense friction",
   boss: "who is the boss or mentor figure - an authority figure with complicated motives and power dynamics",
   family: "who is a family member - creating duty, loyalty conflicts, and emotional pressure",
   secretary: "who is the assistant/secretary - always present, knows everything, quietly influential",
+  admirer: "who is a secret admirer - obsessed from afar, leaving anonymous notes or gifts, their identity a mystery that creates tension",
   stranger: "who is a mysterious stranger - unknown motives, unsettling presence, could be friend or enemy"
 };
 
@@ -253,7 +257,7 @@ export default function App() {
     while (v === a || v === b) v = rVillain(rvg);
     var endings = ["happy","sad","twist","open","dark","surprise"];
     var randEnding = endings[Math.floor(Math.random() * endings.length)];
-    var roleIds = ["villain","ex","bestfriend","rival","boss","family","secretary","stranger"];
+    var roleIds = ["villain","ex","affair","bestfriend","rival","boss","family","secretary","admirer","stranger"];
     var rvr = roleIds[Math.floor(Math.random() * roleIds.length)];
     setScenario(scId); setPName(a); setLName(b); setVName(v); setEnding(randEnding);
     setPGender(rpg); setLGender(rlg); setVGender(rvg); setVRole(rvr);
