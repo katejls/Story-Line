@@ -343,7 +343,7 @@ export default function App() {
           </div>
           {nMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={pl}>{pName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setPName(rName()); }}>{"\u{1F3B2}"}</button></div>}
           {(nMode === "custom" || nMode === "random") && <div style={{marginTop: 10}}>
-            <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>GENDER</div>
+            <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>YOUR GENDER</div>
             <div style={{display: "flex", gap: 6}}>
               <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: pGender === "female" ? accent + "20" : "transparent", color: pGender === "female" ? accent : "#6b645a", borderColor: pGender === "female" ? accent : "#1a1a24"})} onClick={function() { setPGender("female"); }}>Female</button>
               <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: pGender === "male" ? accent + "20" : "transparent", color: pGender === "male" ? accent : "#6b645a", borderColor: pGender === "male" ? accent : "#1a1a24"})} onClick={function() { setPGender("male"); }}>Male</button>
@@ -367,7 +367,7 @@ export default function App() {
           </div>
           {lMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={pl}>{lName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setLName(rName()); }}>{"\u{1F3B2}"}</button></div>}
           {(lMode === "custom" || lMode === "random") && <div style={{marginTop: 10}}>
-            <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>GENDER</div>
+            <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>THEIR GENDER</div>
             <div style={{display: "flex", gap: 6}}>
               <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: lGender === "female" ? accent + "20" : "transparent", color: lGender === "female" ? accent : "#6b645a", borderColor: lGender === "female" ? accent : "#1a1a24"})} onClick={function() { setLGender("female"); }}>Female</button>
               <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: lGender === "male" ? accent + "20" : "transparent", color: lGender === "male" ? accent : "#6b645a", borderColor: lGender === "male" ? accent : "#1a1a24"})} onClick={function() { setLGender("male"); }}>Male</button>
@@ -391,7 +391,7 @@ export default function App() {
           </div>
           {vMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={Object.assign({}, pl, {background: "#c0392b18", color: "#c0392b"})}>{vName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setVName(rVillain()); }}>{"\u{1F3B2}"}</button></div>}
           {(vMode === "custom" || vMode === "random") && <div style={{marginTop: 10}}>
-            <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>GENDER</div>
+            <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>VILLAIN GENDER</div>
             <div style={{display: "flex", gap: 6}}>
               <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "female" ? "#c0392b20" : "transparent", color: vGender === "female" ? "#c0392b" : "#6b645a", borderColor: vGender === "female" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("female"); }}>Female</button>
               <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "male" ? "#c0392b20" : "transparent", color: vGender === "male" ? "#c0392b" : "#6b645a", borderColor: vGender === "male" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("male"); }}>Male</button>
