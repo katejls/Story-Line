@@ -372,11 +372,11 @@ export default function App() {
         <h2 style={{fontSize: 26, fontWeight: 300, marginBottom: 6}}>What world do you<br />want to live in?</h2>
         <p style={{fontSize: 13, color: "#5a544a", marginBottom: 16, fontStyle: "italic"}}>Pick your story. Then personalize it.</p>
         <div style={{display: "flex", flexDirection: "column", gap: 10}}>
-          <div style={cd(scenario === "random", "#fdcb6e")} onClick={function() { var r = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)]; setScenario(r.id); }}>
+          <div style={cd(false, "#fdcb6e")} onClick={function() { var r = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)]; setScenario(r.id); setTimeout(function() { window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }); }, 100); }}>
             <div style={{fontSize: 28, width: 44, textAlign: "center", flexShrink: 0}}>{"\u{1F3B2}"}</div>
             <div style={{flex: 1}}>
               <div style={{fontSize: 16, fontWeight: 600, color: "#fdcb6e"}}>Surprise Me</div>
-              <div style={{fontSize: 12, color: "#5a544a", marginTop: 2, lineHeight: 1.4}}>Pick a random genre. Let fate decide.</div>
+              <div style={{fontSize: 12, color: "#5a544a", marginTop: 2, lineHeight: 1.4}}>Tap to pick a random genre</div>
             </div>
           </div>
           {SCENARIOS.map(function(s) { return (
