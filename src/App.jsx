@@ -45,13 +45,27 @@ var MONO = "DM Mono,Courier New,monospace";
 var CSS_TEXT = "@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Mono:wght@300;400&display=swap');*{box-sizing:border-box;margin:0;padding:0}::-webkit-scrollbar{width:3px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:#1a1a24;border-radius:4px}@keyframes pulse{0%,100%{opacity:.4}50%{opacity:1}}@keyframes spin{to{transform:rotate(360deg)}}input::placeholder{color:#3a3530}";
 
 function callAPI(system, messages, maxTokens) {
-  var url = window.location.origin + "/api/chat";
-  var bodyStr = JSON.stringify({ system: system, messages: messages, max_tokens: maxTokens || 1500 });
-  return fetch(url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: bodyStr
-  }).then(function(r) { return r.json(); });
+  try {
+    var payload = {
+      system: system,
+      messages: messages,
+      max_tokens: maxTokens || 1500
+    };
+    return fetch("/api/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(payload)
+    }).then(function(r) {
+      if (!r.ok) {
+        return r.text().then(function(t) {
+          return { error: "HTTP " + r.status + ": " + t.substring(0, 100) };
+        });
+      }
+      return r.json();
+    });
+  } catch(e) {
+    return Promise.resolve({ error: "Fetch failed: " + e.message });
+  }
 }
 
 export default function App() {
@@ -116,14 +130,14 @@ export default function App() {
     var villainLine = "";
     if (v) {
       var vPro = pronounMap[vg] || "they/them/their";
-      villainLine = "\n- The villain is " + v + " (pronouns: " + vPro + ") - make them menacing, cunning, and a real threat";
+      villainLine = "The villain is " + v + " (pronouns: " + vPro + ") who is menacing, cunning, and a real threat.";
     }
     var setting = SETTINGS[Math.floor(Math.random() * SETTINGS.length)];
     var opening = OPENINGS[Math.floor(Math.random() * OPENINGS.length)];
     var storyId = Math.floor(Math.random() * 99999);
     var endingInstruction = ENDING_PROMPTS[endingType] || ENDING_PROMPTS.surprise;
 
-    var sys = "You write addictive, binge-worthy " + sc.label + " stories in the style of Wattpad, Dreame, and TikTok novels.\nRULES:\n- Main character is " + p + " (pronouns: " + pPro + ") - write in second person (you)\n- Love interest is " + l + " (pronouns: " + lPro + ") - use correct pronouns for them\n- Write a COMPLETE short story - beginning, middle, and ending\n- 800-1000 words\n- Start with **[Creative Unique Title]**\n- Write in a modern, casual, emotional style - NOT formal or literary\n- Use short punchy sentences. Sentence fragments are fine.\n- Heavy on dialogue and internal thoughts\n- Make the reader FEEL everything - butterflies, heartbreak, rage, tension\n- Make " + l + " irresistible - the kind of character readers fall in love with\n- Include " + (HINTS[scId] || "tension and depth") + "\n- Be dramatic, emotional, and addictive\n- ENDING: " + endingInstruction + "\n- Story #" + storyId + " - must be completely unique" + villainLine;
+    var sys = "You write addictive " + sc.label + " stories in Wattpad and Dreame style. RULES: Main character is " + p + " (pronouns: " + pPro + ") in second person (you). Love interest is " + l + " (pronouns: " + lPro + "). Write a COMPLETE short story with beginning, middle, and ending. 800-1000 words. Start with a creative unique title in bold. Modern casual emotional style, not formal. Short punchy sentences. Heavy dialogue and internal thoughts. Make reader feel butterflies, heartbreak, rage, tension. Make " + l + " irresistible. Include " + (HINTS[scId] || "tension and depth") + ". Be dramatic and addictive. ENDING STYLE: " + endingInstruction + ". Story number " + storyId + " must be unique." + (villainLine ? " " + villainLine : "");
 
     var uMsg = "Write a complete personalized " + sc.label + " short story. Setting: " + setting + ". The story begins with " + opening + ". Main character: " + p + ". Love interest: " + l + "." + (v ? " Villain: " + v + "." : "") + " Include a powerful beginning, an emotional middle with rising tension, and a memorable ending. Make it unforgettable.";
 
