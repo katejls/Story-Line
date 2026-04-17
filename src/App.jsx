@@ -36,29 +36,29 @@ var FEMALE_VILLAINS = ["Ravenna","Lilith","Morgana","Nyx","Delilah","Selene","Je
 var NEUTRAL_VILLAINS = ["Vex","Wraith","Onyx","Eclipse","Phantom","Havoc","Chaos","Jinx","Blaze","Frost","Omen","Venom","Zero","Sable","Ash","Rebel","Storm","Riot","Cross","Haze","Wren","Slate","Cipher","Rogue","Blade","Nox","Pyre","Vale","Lux","Grave"];
 
 var SIDE_ROLES = [
-  { id: "villain", emoji: "\u{1F5A4}", label: "Villain", desc: "The antagonist who threatens everything" },
-  { id: "ex", emoji: "\u{1F494}", label: "Ex / First Love", desc: "The one who came before and still lingers" },
-  { id: "affair", emoji: "\u{1F48B}", label: "The Other One", desc: "Cheating, affairs, and love triangles" },
-  { id: "bestfriend", emoji: "\u{1F46F}", label: "Best Friend", desc: "Loyal but hiding their own secrets" },
-  { id: "rival", emoji: "\u{1F525}", label: "Rival", desc: "Competing for the same thing - or the same person" },
-  { id: "boss", emoji: "\u{1F4BC}", label: "Boss / Mentor", desc: "Authority figure with complicated motives" },
-  { id: "family", emoji: "\u{1F46A}", label: "Family Member", desc: "Blood ties that complicate everything" },
-  { id: "secretary", emoji: "\u{1F4CB}", label: "Assistant / Secretary", desc: "Always there, knows all your secrets" },
-  { id: "admirer", emoji: "\u{1F48C}", label: "Secret Admirer", desc: "Someone watching from the shadows, deeply obsessed" },
-  { id: "stranger", emoji: "\u{1F47B}", label: "Mysterious Stranger", desc: "No one knows who they really are" }
+  { id: "villain", emoji: "\u{1F5A4}", label: "Villain", desc: "Wants to destroy you or take what is yours" },
+  { id: "ex", emoji: "\u{1F494}", label: "Ex / First Love", desc: "They are back. And they want you again." },
+  { id: "affair", emoji: "\u{1F48B}", label: "The Affair", desc: "Someone is cheating. Love triangle drama." },
+  { id: "bestfriend", emoji: "\u{1F46F}", label: "Best Friend", desc: "Secretly in love with you or your partner" },
+  { id: "rival", emoji: "\u{1F525}", label: "Love Rival", desc: "Wants your love interest for themselves" },
+  { id: "boss", emoji: "\u{1F4BC}", label: "Boss / Mentor", desc: "Power, tension, and blurred boundaries" },
+  { id: "family", emoji: "\u{1F46A}", label: "Family / Step-sibling", desc: "Adopted, step, or forbidden family ties" },
+  { id: "secretary", emoji: "\u{1F4CB}", label: "Assistant / Secretary", desc: "Knows all secrets. Quietly obsessed." },
+  { id: "admirer", emoji: "\u{1F48C}", label: "Secret Admirer", desc: "Anonymous notes. Obsessive. Who are they?" },
+  { id: "stranger", emoji: "\u{1F47B}", label: "Mysterious Stranger", desc: "Appeared out of nowhere. What do they want?" }
 ];
 
 var ROLE_PROMPTS = {
-  villain: "who is the villain/antagonist - menacing, cunning, and a real threat",
-  ex: "who is the ex-lover or first love - creating jealousy, unresolved feelings, and emotional tension",
-  affair: "who is the other person in a love triangle or affair - creating cheating drama, guilt, betrayal, stolen moments, and impossible choices between two lovers",
-  bestfriend: "who is the best friend - loyal but hiding secrets, possibly in love with the main character too",
-  rival: "who is the rival - competing for the same goal or the same person, creating intense friction",
-  boss: "who is the boss or mentor figure - an authority figure with complicated motives and power dynamics",
-  family: "who is a family member - creating duty, loyalty conflicts, and emotional pressure",
-  secretary: "who is the assistant/secretary - always present, knows everything, quietly influential",
-  admirer: "who is a secret admirer - obsessed from afar, leaving anonymous notes or gifts, their identity a mystery that creates tension",
-  stranger: "who is a mysterious stranger - unknown motives, unsettling presence, could be friend or enemy"
+  villain: "who is the villain/antagonist - wants to destroy the main character or take everything from them",
+  ex: "who is the ex-lover or first love who suddenly returns - creating jealousy, unresolved feelings, and forcing the main character to choose between past and present love",
+  affair: "who is the third person in a love triangle - someone is cheating or being tempted to cheat. Create intense affair drama with guilt, stolen moments, secret meetings, and the constant fear of being caught",
+  bestfriend: "who is the best friend secretly in love with the main character or the love interest - creating hidden jealousy, loyalty conflicts, and emotional betrayal",
+  rival: "who is the love rival - actively pursuing the love interest and competing against the main character for their heart",
+  boss: "who is the boss or mentor - creating forbidden power dynamics, inappropriate tension, and blurred professional boundaries",
+  family: "who is a step-sibling, adopted sibling, or family-connected person - creating forbidden attraction, family drama, and taboo tension that they try to fight but cannot resist",
+  secretary: "who is the personal assistant or secretary - always present, knows every secret, quietly obsessed with their boss and willing to do anything",
+  admirer: "who is a secret admirer - sending anonymous gifts and notes, watching from afar, identity unknown. Are they romantic or dangerous? The mystery creates tension",
+  stranger: "who is a mysterious stranger who appeared out of nowhere - unknown motives, magnetic presence, could change everything"
 };
 
 function rName(gender) {
