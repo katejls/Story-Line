@@ -35,6 +35,28 @@ var MALE_VILLAINS = ["Malakai","Thorne","Draven","Viktor","Cain","Nero","Dante",
 var FEMALE_VILLAINS = ["Ravenna","Lilith","Morgana","Nyx","Delilah","Selene","Jezebel","Electra","Tempest","Raven","Medusa","Pandora","Carmen","Yuki","Mei","Priya","Naira","Amira","Soraya","Katya","Bianca","Regina","Miranda","Samara","Vivica","Octavia","Dominique","Estella","Monique","Tatiana","Zaina","Mika","Suki","Kamila","Ingrid","Freya","Astrid","Lila","Thalia","Greta","Noor","Ines","Lucia","Chiara","Amara","Kenza","Helena","Marcella","Dahlia","Renata"];
 var NEUTRAL_VILLAINS = ["Vex","Wraith","Onyx","Eclipse","Phantom","Havoc","Chaos","Jinx","Blaze","Frost","Omen","Venom","Zero","Sable","Ash","Rebel","Storm","Riot","Cross","Haze","Wren","Slate","Cipher","Rogue","Blade","Nox","Pyre","Vale","Lux","Grave"];
 
+var SIDE_ROLES = [
+  { id: "villain", emoji: "\u{1F5A4}", label: "Villain", desc: "The antagonist who threatens everything" },
+  { id: "ex", emoji: "\u{1F494}", label: "Ex / First Love", desc: "The one who came before and still lingers" },
+  { id: "bestfriend", emoji: "\u{1F46F}", label: "Best Friend", desc: "Loyal but hiding their own secrets" },
+  { id: "rival", emoji: "\u{1F525}", label: "Rival", desc: "Competing for the same thing - or the same person" },
+  { id: "boss", emoji: "\u{1F4BC}", label: "Boss / Mentor", desc: "Authority figure with complicated motives" },
+  { id: "family", emoji: "\u{1F46A}", label: "Family Member", desc: "Blood ties that complicate everything" },
+  { id: "secretary", emoji: "\u{1F4CB}", label: "Assistant / Secretary", desc: "Always there, knows all your secrets" },
+  { id: "stranger", emoji: "\u{1F47B}", label: "Mysterious Stranger", desc: "No one knows who they really are" }
+];
+
+var ROLE_PROMPTS = {
+  villain: "who is the villain/antagonist - menacing, cunning, and a real threat",
+  ex: "who is the ex-lover or first love - creating jealousy, unresolved feelings, and emotional tension",
+  bestfriend: "who is the best friend - loyal but hiding secrets, possibly in love with the main character too",
+  rival: "who is the rival - competing for the same goal or the same person, creating intense friction",
+  boss: "who is the boss or mentor figure - an authority figure with complicated motives and power dynamics",
+  family: "who is a family member - creating duty, loyalty conflicts, and emotional pressure",
+  secretary: "who is the assistant/secretary - always present, knows everything, quietly influential",
+  stranger: "who is a mysterious stranger - unknown motives, unsettling presence, could be friend or enemy"
+};
+
 function rName(gender) {
   if (gender === "male") return MALE_NAMES[Math.floor(Math.random() * MALE_NAMES.length)];
   if (gender === "female") return FEMALE_NAMES[Math.floor(Math.random() * FEMALE_NAMES.length)];
@@ -99,6 +121,7 @@ export default function App() {
   var _pg = useState(null); var pGender = _pg[0]; var setPGender = _pg[1];
   var _lg = useState(null); var lGender = _lg[0]; var setLGender = _lg[1];
   var _vg = useState(null); var vGender = _vg[0]; var setVGender = _vg[1];
+  var _vr = useState(null); var vRole = _vr[0]; var setVRole = _vr[1];
   var _nm = useState(null); var nMode = _nm[0]; var setNMode = _nm[1];
   var _lm = useState(null); var lMode = _lm[0]; var setLMode = _lm[1];
   var _vm = useState(null); var vMode = _vm[0]; var setVMode = _vm[1];
@@ -160,7 +183,7 @@ export default function App() {
     return function() { clearInterval(iv); };
   }, [busy]);
 
-  function generateStory(scId, p, l, v, endingType, pg, lg, vg) {
+  function generateStory(scId, p, l, v, endingType, pg, lg, vg, vr) {
     setBusy(true); setErr("");
     var sc = SCENARIOS.find(function(s) { return s.id === scId; });
     var pronounMap = { male: "he/him/his", female: "she/her/her", nonbinary: "they/them/their" };
@@ -169,7 +192,8 @@ export default function App() {
     var villainLine = "";
     if (v) {
       var vPro = pronounMap[vg] || "they/them/their";
-      villainLine = "The villain is " + v + " (pronouns: " + vPro + ") who is menacing, cunning, and a real threat.";
+      var roleDesc = ROLE_PROMPTS[vr || "villain"] || ROLE_PROMPTS.villain;
+      villainLine = "There is a side character named " + v + " (pronouns: " + vPro + ") " + roleDesc + ". Give them a meaningful role in the story.";
     }
     var setting = SETTINGS[Math.floor(Math.random() * SETTINGS.length)];
     var opening = OPENINGS[Math.floor(Math.random() * OPENINGS.length)];
@@ -229,19 +253,21 @@ export default function App() {
     while (v === a || v === b) v = rVillain(rvg);
     var endings = ["happy","sad","twist","open","dark","surprise"];
     var randEnding = endings[Math.floor(Math.random() * endings.length)];
+    var roleIds = ["villain","ex","bestfriend","rival","boss","family","secretary","stranger"];
+    var rvr = roleIds[Math.floor(Math.random() * roleIds.length)];
     setScenario(scId); setPName(a); setLName(b); setVName(v); setEnding(randEnding);
-    setPGender(rpg); setLGender(rlg); setVGender(rvg);
-    generateStory(scId, a, b, v, randEnding, rpg, rlg, rvg);
+    setPGender(rpg); setLGender(rlg); setVGender(rvg); setVRole(rvr);
+    generateStory(scId, a, b, v, randEnding, rpg, rlg, rvg, rvr);
   }
 
   function customStart() {
-    generateStory(scenario, pName, lName, vName, ending, pGender, lGender, vGender);
+    generateStory(scenario, pName, lName, vName, ending, pGender, lGender, vGender, vRole);
   }
 
   function doReset() {
     setScreen("scenario"); setScenario(null); setCurText(""); setShown(""); setErr("");
     setNMode(null); setLMode(null); setVMode(null); setEnding(null);
-    setPGender(null); setLGender(null); setVGender(null);
+    setPGender(null); setLGender(null); setVGender(null); setVRole(null);
     setPName(""); setLName(""); setVName("");
     setCMsgs([]); setCHist([]); setActiveStoryId(null);
   }
@@ -465,28 +491,42 @@ export default function App() {
         <div style={divider} />
 
         <div style={{marginBottom: 20}}>
-          <div style={{fontSize: 12, letterSpacing: 3, color: "#8b4545", fontFamily: MONO, textTransform: "uppercase", marginBottom: 10}}>Villain (optional)</div>
-          <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>VILLAIN GENDER</div>
-          <div style={{display: "flex", gap: 6, marginBottom: 10}}>
-            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "female" ? "#c0392b20" : "transparent", color: vGender === "female" ? "#c0392b" : "#6b645a", borderColor: vGender === "female" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("female"); if (vMode === "random") setVName(rVillain("female")); }}>Female</button>
-            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "male" ? "#c0392b20" : "transparent", color: vGender === "male" ? "#c0392b" : "#6b645a", borderColor: vGender === "male" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("male"); if (vMode === "random") setVName(rVillain("male")); }}>Male</button>
-            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "nonbinary" ? "#c0392b20" : "transparent", color: vGender === "nonbinary" ? "#c0392b" : "#6b645a", borderColor: vGender === "nonbinary" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("nonbinary"); if (vMode === "random") setVName(rVillain("nonbinary")); }}>Non-binary</button>
+          <div style={{fontSize: 12, letterSpacing: 3, color: "#8b4545", fontFamily: MONO, textTransform: "uppercase", marginBottom: 10}}>Side character (optional)</div>
+          <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>THEIR ROLE</div>
+          <div style={{display: "flex", flexDirection: "column", gap: 6, marginBottom: 10}}>
+            {SIDE_ROLES.map(function(role) { return (
+              <div key={role.id} style={Object.assign({}, cd(vRole === role.id, "#c0392b"), {padding: "10px 14px"})} onClick={function() { setVRole(role.id); }}>
+                <div style={{fontSize: 18, width: 28, textAlign: "center", flexShrink: 0}}>{role.emoji}</div>
+                <div style={{flex: 1}}>
+                  <div style={{fontSize: 13, fontWeight: 600, color: vRole === role.id ? "#c0392b" : "#e8e0d4"}}>{role.label}</div>
+                  <div style={{fontSize: 11, color: "#5a544a"}}>{role.desc}</div>
+                </div>
+              </div>
+            ); })}
           </div>
-          {vGender && <div>
+          {vRole && <div>
+            <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>THEIR GENDER</div>
+            <div style={{display: "flex", gap: 6, marginBottom: 10}}>
+              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "female" ? "#c0392b20" : "transparent", color: vGender === "female" ? "#c0392b" : "#6b645a", borderColor: vGender === "female" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("female"); if (vMode === "random") setVName(rName("female")); }}>Female</button>
+              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "male" ? "#c0392b20" : "transparent", color: vGender === "male" ? "#c0392b" : "#6b645a", borderColor: vGender === "male" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("male"); if (vMode === "random") setVName(rName("male")); }}>Male</button>
+              <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: vGender === "nonbinary" ? "#c0392b20" : "transparent", color: vGender === "nonbinary" ? "#c0392b" : "#6b645a", borderColor: vGender === "nonbinary" ? "#c0392b" : "#1a1a24"})} onClick={function() { setVGender("nonbinary"); if (vMode === "random") setVName(rName("nonbinary")); }}>Non-binary</button>
+            </div>
+          </div>}
+          {vRole && vGender && <div>
             <div style={cd(vMode === "custom", "#c0392b")} onClick={function() { setVMode("custom"); setVName(""); }}>
               <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u270D\uFE0F"}</div>
-              <div style={{fontSize: 14, fontWeight: 600}}>Type villain name</div>
+              <div style={{fontSize: 14, fontWeight: 600}}>Type their name</div>
             </div>
-            {vMode === "custom" && <input style={Object.assign({}, inp, {marginTop: 8})} placeholder="Villain name..." value={vName} onChange={function(e) { setVName(e.target.value); }} />}
-            <div style={Object.assign({}, cd(vMode === "random", "#c0392b"), {marginTop: 8})} onClick={function() { setVMode("random"); setVName(rVillain(vGender)); }}>
+            {vMode === "custom" && <input style={Object.assign({}, inp, {marginTop: 8})} placeholder="Their name..." value={vName} onChange={function(e) { setVName(e.target.value); }} />}
+            <div style={Object.assign({}, cd(vMode === "random", "#c0392b"), {marginTop: 8})} onClick={function() { setVMode("random"); setVName(rName(vGender)); }}>
               <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u{1F3B2}"}</div>
-              <div style={{fontSize: 14, fontWeight: 600}}>Random villain</div>
+              <div style={{fontSize: 14, fontWeight: 600}}>Random name</div>
             </div>
-            {vMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={Object.assign({}, pl, {background: "#c0392b18", color: "#c0392b"})}>{vName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setVName(rVillain(vGender)); }}>{"\u{1F3B2}"}</button></div>}
+            {vMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={Object.assign({}, pl, {background: "#c0392b18", color: "#c0392b"})}>{vName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setVName(rName(vGender)); }}>{"\u{1F3B2}"}</button></div>}
           </div>}
-          <div style={Object.assign({}, cd(vMode === "skip", "#636e72"), {marginTop: 8})} onClick={function() { setVMode("skip"); setVName(""); setVGender(null); }}>
+          <div style={Object.assign({}, cd(vMode === "skip", "#636e72"), {marginTop: 8})} onClick={function() { setVMode("skip"); setVName(""); setVGender(null); setVRole(null); }}>
             <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u2796"}</div>
-            <div style={{fontSize: 14, fontWeight: 600, color: "#636e72"}}>No villain</div>
+            <div style={{fontSize: 14, fontWeight: 600, color: "#636e72"}}>No side character</div>
           </div>
         </div>
 
