@@ -581,7 +581,16 @@ export default function App() {
         </div>
         <div style={{display: "flex", gap: 0, background: "#0d0d12", borderRadius: 14, overflow: "hidden", border: "1px solid #1a1a24", marginBottom: 16}}>
           <button style={nb(true)}>STORY</button>
-          <button style={nb(false)} onClick={function() { setScreen("chat"); }}>CHAT WITH {lName.toUpperCase()}</button>
+          <button style={nb(false)} onClick={function() {
+              if (cHist.length === 0) {
+                var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
+                setCHist([
+                  {role: "user", content: "You are " + lName + " from a " + (sc2 && sc2.label) + " story, texting " + pName + ". Stay in character. 1-3 sentences. Text casually. NO asterisks or action text. Never mention AI."},
+                  {role: "assistant", content: "I understand."}
+                ]);
+              }
+              setScreen("chat");
+            }}>CHAT WITH {lName.toUpperCase()}</button>
         </div>
         <div style={{display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap"}}>
           {sel && <span style={pl}>{sel.emoji} {sel.label}</span>}
@@ -594,7 +603,16 @@ export default function App() {
         {err && <p style={{color: "#c0392b", marginTop: 10, fontSize: 13, textAlign: "center"}}>{err}</p>}
         <div style={{position: "fixed", bottom: 0, left: 0, right: 0, padding: "16px 20px 28px", background: "linear-gradient(transparent,#07070b 30%)", zIndex: 10}}>
           <div style={{maxWidth: 480, margin: "0 auto", display: "flex", flexDirection: "column", gap: 8}}>
-            <button style={bt(false)} onClick={function() { setScreen("chat"); }}>{lName} wants to talk to you...</button>
+            <button style={bt(false)} onClick={function() {
+              if (cHist.length === 0) {
+                var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
+                setCHist([
+                  {role: "user", content: "You are " + lName + " from a " + (sc2 && sc2.label) + " story, texting " + pName + ". Stay in character. 1-3 sentences. Text casually. NO asterisks or action text. Never mention AI."},
+                  {role: "assistant", content: "I understand."}
+                ]);
+              }
+              setScreen("chat");
+            }}>{lName} wants to talk to you...</button>
             <div style={{display: "flex", gap: 8}}>
               {savedStories.length > 1 && <button style={Object.assign({}, b2, {flex: 1})} onClick={function() { setScreen("myStories"); }}>My Stories</button>}
               <button style={Object.assign({}, b2, {flex: 1})} onClick={doReset}>New Story</button>
