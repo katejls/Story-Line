@@ -2,13 +2,21 @@ import { useState, useRef, useEffect } from "react";
 
 var SCENARIOS = [
   { id: "billionaire", emoji: "\u{1F48E}", label: "Billionaire Romance", desc: "The CEO who can not stop thinking about you", color: "#c9a84c", bg: "linear-gradient(135deg, #1a1508, #0a0a0f)" },
-  { id: "revenge", emoji: "\u{1F5E1}\uFE0F", label: "Revenge", desc: "They destroyed your life. You came back stronger.", color: "#c0392b", bg: "linear-gradient(135deg, #150808, #0a0a0f)" },
-  { id: "reborn", emoji: "\u{1F504}", label: "Reborn", desc: "You died. You woke up 10 years in the past.", color: "#2e86de", bg: "linear-gradient(135deg, #080d15, #0a0a0f)" },
   { id: "mafia", emoji: "\u{1F5A4}", label: "Mafia Love", desc: "Dangerous. Possessive. Completely obsessed with you.", color: "#6c5ce7", bg: "linear-gradient(135deg, #0d0a15, #0a0a0f)" },
-  { id: "werewolf", emoji: "\u{1F43A}", label: "Fated Mate", desc: "The Alpha who has been searching for you their whole life", color: "#e17055", bg: "linear-gradient(135deg, #150d08, #0a0a0f)" },
   { id: "enemies", emoji: "\u{1F525}", label: "Enemies to Lovers", desc: "You hate each other. Until you do not.", color: "#fd79a8", bg: "linear-gradient(135deg, #150a10, #0a0a0f)" },
+  { id: "werewolf", emoji: "\u{1F43A}", label: "Fated Mate", desc: "The Alpha who has been searching for you their whole life", color: "#e17055", bg: "linear-gradient(135deg, #150d08, #0a0a0f)" },
+  { id: "abo", emoji: "\u{1F43E}", label: "ABO / Omegaverse", desc: "Heats, bonds, and a mate who will do anything to claim you", color: "#e84393", bg: "linear-gradient(135deg, #150a12, #0a0a0f)" },
+  { id: "highschool", emoji: "\u{1F393}", label: "High School Romance", desc: "First love, hallway tension, and secret notes", color: "#74b9ff", bg: "linear-gradient(135deg, #0a0d15, #0a0a0f)" },
   { id: "royal", emoji: "\u{1F451}", label: "Royal Affair", desc: "A forbidden love with someone of royal blood", color: "#ffeaa7", bg: "linear-gradient(135deg, #15140a, #0a0a0f)" },
-  { id: "thriller", emoji: "\u{1F52A}", label: "Dark Thriller", desc: "Trust no one. Especially the one you love.", color: "#636e72", bg: "linear-gradient(135deg, #0d0d0d, #0a0a0f)" }
+  { id: "revenge", emoji: "\u{1F5E1}\uFE0F", label: "Revenge", desc: "They destroyed your life. You came back stronger.", color: "#c0392b", bg: "linear-gradient(135deg, #150808, #0a0a0f)" },
+  { id: "reborn", emoji: "\u{1F504}", label: "Reborn / Second Chance", desc: "You died. You woke up 10 years in the past.", color: "#2e86de", bg: "linear-gradient(135deg, #080d15, #0a0a0f)" },
+  { id: "thriller", emoji: "\u{1F52A}", label: "Dark Thriller", desc: "Trust no one. Especially the one you love.", color: "#636e72", bg: "linear-gradient(135deg, #0d0d0d, #0a0a0f)" },
+  { id: "vampire", emoji: "\u{1F9DB}", label: "Vampire Romance", desc: "Immortal, irresistible, and they chose you", color: "#d63031", bg: "linear-gradient(135deg, #120808, #0a0a0f)" },
+  { id: "fake", emoji: "\u{1F48D}", label: "Fake Dating", desc: "It started as an act. Now the feelings are real.", color: "#55efc4", bg: "linear-gradient(135deg, #0a1510, #0a0a0f)" },
+  { id: "arranged", emoji: "\u{1F490}", label: "Arranged Marriage", desc: "Strangers forced together. Slowly falling apart.", color: "#fab1a0", bg: "linear-gradient(135deg, #150d0a, #0a0a0f)" },
+  { id: "military", emoji: "\u{1FA96}", label: "Military / Bodyguard", desc: "Sworn to protect you. Fighting not to love you.", color: "#636e72", bg: "linear-gradient(135deg, #0d0d0f, #0a0a0f)" },
+  { id: "celebrity", emoji: "\u{2B50}", label: "Celebrity / Idol", desc: "Famous, untouchable, and secretly yours", color: "#fdcb6e", bg: "linear-gradient(135deg, #15130a, #0a0a0f)" },
+  { id: "supernatural", emoji: "\u{1F52E}", label: "Supernatural", desc: "Witches, demons, and a love that defies the universe", color: "#a29bfe", bg: "linear-gradient(135deg, #0d0a15, #0a0a0f)" }
 ];
 
 var ENDINGS = [
@@ -38,8 +46,8 @@ function rVillain(gender) {
   return NEUTRAL_VILLAINS[Math.floor(Math.random() * NEUTRAL_VILLAINS.length)];
 }
 
-var HINTS = { revenge:"cunning plans, betrayal reveals, power shifts", reborn:"memories from past life, using future knowledge", mafia:"danger, possessiveness, forbidden attraction", billionaire:"power dynamics, luxury settings, intense attraction", werewolf:"the mate bond, pack dynamics, primal instincts", enemies:"banter, tension, forced proximity", royal:"duty vs desire, elegance, forbidden love", thriller:"suspense, paranoia, dangerous attraction" };
-var TITLES_MAP = { mafia:"THE DON", billionaire:"CEO", werewolf:"ALPHA", royal:"CROWN PRINCE", revenge:"YOUR ALLY", reborn:"PAST LIFE", enemies:"YOUR RIVAL", thriller:"SUSPECT" };
+var HINTS = { revenge:"cunning plans, betrayal reveals, power shifts", reborn:"memories from past life, using future knowledge, second chances", mafia:"danger, possessiveness, forbidden attraction, loyalty", billionaire:"power dynamics, luxury settings, intense attraction", werewolf:"the mate bond, pack dynamics, primal instincts", enemies:"banter, tension, forced proximity, hate that turns to desire", royal:"duty vs desire, elegance, forbidden love, palace intrigue", thriller:"suspense, paranoia, dangerous attraction, plot twists", abo:"heat cycles, the bond, scent marking, possessive protectiveness, fated mates", highschool:"first love butterflies, secret crushes, prom drama, hallway tension", vampire:"immortality, bloodlust, forbidden desire, eternal devotion", fake:"pretending in public, real feelings in private, jealousy, the moment it becomes real", arranged:"cold first meeting, slow burn, vulnerability behind walls, unexpected tenderness", military:"duty vs love, protectiveness, danger, sacrifice, discipline breaking down", celebrity:"secret relationships, paparazzi tension, fame vs real connection, stolen moments", supernatural:"magic, forbidden bonds, otherworldly tension, destiny" };
+var TITLES_MAP = { mafia:"THE DON", billionaire:"CEO", werewolf:"ALPHA", royal:"ROYALTY", revenge:"YOUR ALLY", reborn:"PAST LIFE", enemies:"YOUR RIVAL", thriller:"SUSPECT", abo:"YOUR ALPHA", highschool:"CLASSMATE", vampire:"IMMORTAL", fake:"FAKE LOVER", arranged:"YOUR SPOUSE", military:"PROTECTOR", celebrity:"THE STAR", supernatural:"ENCHANTED" };
 var LMSGS = ["Writing your fate...","The plot thickens...","Crafting the tension...","Building your world...","Choosing your destiny...","Sealing the ending..."];
 var SETTINGS = ["modern day big city", "small coastal town", "1920s noir", "futuristic dystopia", "medieval kingdom", "tropical island", "snowy mountain lodge", "underground world", "boarding school", "war-torn country", "luxury yacht", "haunted mansion", "desert oasis", "neon-lit Tokyo", "Parisian streets", "Las Vegas penthouse", "ancient temple ruins", "Victorian London", "cyberpunk megacity", "remote countryside estate"];
 var OPENINGS = ["a chance encounter", "a shocking discovery", "a desperate escape", "a mistaken identity", "a forbidden meeting", "a deadly accident", "waking up with no memory", "receiving a mysterious letter", "witnessing something forbidden", "being betrayed by someone close", "arriving somewhere new", "a funeral", "a high-stakes negotiation", "a storm that changes everything", "a wedding that goes wrong", "a secret revealed at midnight"];
@@ -364,6 +372,13 @@ export default function App() {
         <h2 style={{fontSize: 26, fontWeight: 300, marginBottom: 6}}>What world do you<br />want to live in?</h2>
         <p style={{fontSize: 13, color: "#5a544a", marginBottom: 16, fontStyle: "italic"}}>Pick your story. Then personalize it.</p>
         <div style={{display: "flex", flexDirection: "column", gap: 10}}>
+          <div style={cd(scenario === "random", "#fdcb6e")} onClick={function() { var r = SCENARIOS[Math.floor(Math.random() * SCENARIOS.length)]; setScenario(r.id); }}>
+            <div style={{fontSize: 28, width: 44, textAlign: "center", flexShrink: 0}}>{"\u{1F3B2}"}</div>
+            <div style={{flex: 1}}>
+              <div style={{fontSize: 16, fontWeight: 600, color: "#fdcb6e"}}>Surprise Me</div>
+              <div style={{fontSize: 12, color: "#5a544a", marginTop: 2, lineHeight: 1.4}}>Pick a random genre. Let fate decide.</div>
+            </div>
+          </div>
           {SCENARIOS.map(function(s) { return (
             <div key={s.id} style={cd(scenario === s.id, s.color)} onClick={function() { setScenario(s.id); }}>
               <div style={{fontSize: 28, width: 44, textAlign: "center", flexShrink: 0}}>{s.emoji}</div>
