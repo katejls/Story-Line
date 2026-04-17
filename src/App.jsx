@@ -101,11 +101,29 @@ export default function App() {
   var _lms = useState(LMSGS[0]); var lmsg = _lms[0]; var setLmsg = _lms[1];
 
   var _cm = useState([]); var cMsgs = _cm[0]; var setCMsgs = _cm[1];
-  var _ct2 = useState("love"); var chatTarget = _ct2[0]; var setChatTarget = _ct2[1];
   var _ci = useState(""); var cIn = _ci[0]; var setCIn = _ci[1];
   var _cb = useState(false); var cBusy = _cb[0]; var setCBusy = _cb[1];
   var _cht = useState([]); var cHist = _cht[0]; var setCHist = _cht[1];
   var _er = useState(""); var err = _er[0]; var setErr = _er[1];
+  var _sid = useState(null); var activeStoryId = _sid[0]; var setActiveStoryId = _sid[1];
+
+  var _saved = useState(function() {
+    try { var d = localStorage.getItem("storyline_stories"); return d ? JSON.parse(d) : []; }
+    catch(e) { return []; }
+  }); var savedStories = _saved[0]; var setSavedStories = _saved[1];
+
+  function saveToStorage(stories) {
+    setSavedStories(stories);
+    try { localStorage.setItem("storyline_stories", JSON.stringify(stories)); } catch(e) {}
+  }
+
+  function saveChatToStorage(storyId, msgs, hist) {
+    var updated = savedStories.map(function(s) {
+      if (s.id === storyId) { return Object.assign({}, s, { chatMsgs: msgs, chatHist: hist }); }
+      return s;
+    });
+    saveToStorage(updated);
+  }
 
   var sRef = useRef(null);
   var cRef = useRef(null);
@@ -166,10 +184,26 @@ export default function App() {
       setCurText(txt);
       setScreen("story");
       setCMsgs([]);
-      setCHist([
+      var initHist = [
         {role: "user", content: "You are " + l + " from a " + sc.label + " story, texting " + p + " after the story just ended. Stay in character. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text like *smiles* or *leans in*. Just write normal messages like texting. Be flirty, intense, or emotional depending on the mood. Never mention AI."},
         {role: "assistant", content: "I understand."}
-      ]);
+      ];
+      setCHist(initHist);
+
+      var newStory = {
+        id: Date.now().toString(),
+        scenario: scId,
+        pName: p, lName: l, vName: v,
+        pGender: pg, lGender: lg, vGender: vg,
+        ending: endingType,
+        text: txt,
+        chatMsgs: [],
+        chatHist: initHist,
+        createdAt: new Date().toISOString()
+      };
+      setActiveStoryId(newStory.id);
+      var updated = [newStory].concat(savedStories);
+      saveToStorage(updated);
       setBusy(false);
     }).catch(function(e) {
       setErr("Network error: " + e.message);
@@ -201,29 +235,45 @@ export default function App() {
     setNMode(null); setLMode(null); setVMode(null); setEnding(null);
     setPGender(null); setLGender(null); setVGender(null);
     setPName(""); setLName(""); setVName("");
-    setCMsgs([]); setCHist([]);
+    setCMsgs([]); setCHist([]); setActiveStoryId(null);
+  }
+
+  function loadStory(story) {
+    setScenario(story.scenario);
+    setPName(story.pName); setLName(story.lName); setVName(story.vName || "");
+    setPGender(story.pGender); setLGender(story.lGender); setVGender(story.vGender || null);
+    setEnding(story.ending);
+    setCurText(story.text);
+    setCMsgs(story.chatMsgs || []);
+    setCHist(story.chatHist || []);
+    setActiveStoryId(story.id);
+    setScreen("story");
+  }
+
+  function deleteStory(storyId) {
+    var updated = savedStories.filter(function(s) { return s.id !== storyId; });
+    saveToStorage(updated);
+    if (activeStoryId === storyId) doReset();
   }
 
   function sendChat() {
     if (!cIn.trim() || cBusy) return;
     var msg = cIn.trim(); setCIn("");
-    var chatName = chatTarget === "villain" ? vName : lName;
-    setCMsgs(function(p) { return p.concat([{role: "user", text: msg}]); });
+    var newMsgs = cMsgs.concat([{role: "user", text: msg}]);
+    setCMsgs(newMsgs);
     setCBusy(true);
     var sc = SCENARIOS.find(function(s) { return s.id === scenario; });
-    var sys;
-    if (chatTarget === "villain") {
-      sys = "You are " + vName + ", the villain from a " + sc.label + " story, texting " + pName + ". Rules: Stay in character always. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text like *smiles*. Just write normal text messages. Be menacing, manipulative, darkly charming, or threatening depending on context. NEVER mention being AI.";
-    } else {
-      sys = "You are " + lName + " from a " + sc.label + " story, texting " + pName + ". Rules: Stay in character always. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text like *smiles*. Just write normal text messages. Be emotionally engaging - flirty, intense, protective, jealous, or vulnerable. Use " + pName + " name sometimes. NEVER mention being AI.";
-    }
+    var sys = "You are " + lName + " from a " + sc.label + " story, texting " + pName + ". Rules: Stay in character always. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text like *smiles*. Just write normal text messages. Be emotionally engaging - flirty, intense, protective, jealous, or vulnerable. Use " + pName + " name sometimes. NEVER mention being AI.";
     var msgs = cHist.concat([{role: "user", content: msg}]);
     callAPI(sys, msgs, 200).then(function(d) {
       var reply = "";
       if (d.content) { for (var ci = 0; ci < d.content.length; ci++) { reply += (d.content[ci].text || ""); } }
       if (!reply) reply = "...";
-      setCMsgs(function(p) { return p.concat([{role: "li", text: reply}]); });
-      setCHist(msgs.concat([{role: "assistant", content: reply}]));
+      var updatedMsgs = newMsgs.concat([{role: "li", text: reply}]);
+      var updatedHist = msgs.concat([{role: "assistant", content: reply}]);
+      setCMsgs(updatedMsgs);
+      setCHist(updatedHist);
+      if (activeStoryId) saveChatToStorage(activeStoryId, updatedMsgs, updatedHist);
       setCBusy(false);
     }).catch(function() {
       setCMsgs(function(p) { return p.concat([{role: "li", text: "..."}]); });
@@ -328,6 +378,14 @@ export default function App() {
           <div style={{marginTop: 20, display: "flex", flexDirection: "column", gap: 8}}>
             <button style={bt(false)} onClick={function() { setScreen("nameSetup"); }}>Personalize My Story</button>
             <button style={b2} onClick={function() { quickStart(scenario); }}>Skip - Random Everything</button>
+          </div>
+        )}
+        {savedStories.length > 0 && (
+          <div style={{marginTop: 20}}>
+            <div style={divider} />
+            <button style={Object.assign({}, b2, {display: "flex", alignItems: "center", justifyContent: "center", gap: 8})} onClick={function() { setScreen("myStories"); }}>
+              {"\u{1F4DA}"} My Stories ({savedStories.length})
+            </button>
           </div>
         )}
       </div>
@@ -458,6 +516,46 @@ export default function App() {
     </div>
   );
 
+  // MY STORIES
+  if (screen === "myStories") return (
+    <div style={W}><div style={G} />
+      <div style={C}>
+        <div style={{display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 12}}>
+          <div style={LO}>storyline</div>
+          <button style={{background: "none", border: "none", color: "#3a3530", fontSize: 11, cursor: "pointer", fontFamily: MONO, letterSpacing: 2}} onClick={function() { setScreen("scenario"); }}>BACK</button>
+        </div>
+        <h2 style={{fontSize: 24, fontWeight: 300, marginBottom: 6}}>{"\u{1F4DA}"} My Stories</h2>
+        <p style={{fontSize: 13, color: "#5a544a", marginBottom: 16, fontStyle: "italic"}}>{savedStories.length} {savedStories.length === 1 ? "story" : "stories"} saved</p>
+        <div style={{display: "flex", flexDirection: "column", gap: 10}}>
+          {savedStories.map(function(story) {
+            var sc = SCENARIOS.find(function(s) { return s.id === story.scenario; });
+            var title = story.text.split("\n")[0].replace(/\*/g, "").trim() || "Untitled";
+            var chatCount = (story.chatMsgs || []).length;
+            return (
+              <div key={story.id} style={{padding: "16px", borderRadius: 16, border: "1.5px solid #18181f", background: "#0d0d14", cursor: "pointer"}} onClick={function() { loadStory(story); }}>
+                <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-start"}}>
+                  <div style={{flex: 1}}>
+                    <div style={{fontSize: 11, color: (sc && sc.color) || "#5a544a", fontFamily: MONO, letterSpacing: 2, marginBottom: 4}}>{sc ? sc.emoji + " " + sc.label.toUpperCase() : "STORY"}</div>
+                    <div style={{fontSize: 15, fontWeight: 600, color: "#e8e0d4", marginBottom: 6, lineHeight: 1.3}}>{title.length > 50 ? title.substring(0, 50) + "..." : title}</div>
+                    <div style={{display: "flex", gap: 6, flexWrap: "wrap"}}>
+                      <span style={{fontSize: 11, color: "#5a544a"}}>{story.pName} + {story.lName}</span>
+                      {chatCount > 0 && <span style={{fontSize: 11, color: (sc && sc.color) || "#5a544a"}}>{"\u{1F4AC}"} {chatCount} messages</span>}
+                    </div>
+                  </div>
+                  <button style={{background: "none", border: "none", color: "#3a3530", fontSize: 16, cursor: "pointer", padding: "4px 8px"}} onClick={function(e) { e.stopPropagation(); deleteStory(story.id); }}>{"\u2715"}</button>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+        {savedStories.length > 0 && (
+          <button style={Object.assign({}, b2, {marginTop: 20, color: "#c0392b", borderColor: "#c0392b30"})} onClick={function() { saveToStorage([]); setScreen("scenario"); }}>Clear All Stories</button>
+        )}
+      </div>
+      <style>{CSS_TEXT}</style>
+    </div>
+  );
+
   // STORY
   if (screen === "story") return (
     <div style={W}><div style={G} />
@@ -481,9 +579,11 @@ export default function App() {
         {err && <p style={{color: "#c0392b", marginTop: 10, fontSize: 13, textAlign: "center"}}>{err}</p>}
         <div style={{position: "fixed", bottom: 0, left: 0, right: 0, padding: "16px 20px 28px", background: "linear-gradient(transparent,#07070b 30%)", zIndex: 10}}>
           <div style={{maxWidth: 480, margin: "0 auto", display: "flex", flexDirection: "column", gap: 8}}>
-            <button style={bt(false)} onClick={function() { setChatTarget("love"); setCMsgs([]); setCHist([{role: "user", content: "You are " + lName + " from a " + (sel && sel.label) + " story, texting " + pName + ". Stay in character. 1-3 sentences. Text casually. NO asterisks or action text. Never mention AI."}, {role: "assistant", content: "I understand."}]); setScreen("chat"); }}>{lName} wants to talk to you...</button>
-            {vName && <button style={Object.assign({}, b2, {borderColor: "#c0392b40", color: "#c0392b"})} onClick={function() { setChatTarget("villain"); setCMsgs([]); setCHist([{role: "user", content: "You are " + vName + ", the villain from a " + (sel && sel.label) + " story, texting " + pName + ". Stay in character. Be menacing, manipulative, or darkly charming. 1-3 sentences. Text casually. NO asterisks or action text. Never mention AI."}, {role: "assistant", content: "I understand."}]); setScreen("chat"); }}>{vName} sent you a message...</button>}
-            <button style={b2} onClick={doReset}>New Story</button>
+            <button style={bt(false)} onClick={function() { setScreen("chat"); }}>{lName} wants to talk to you...</button>
+            <div style={{display: "flex", gap: 8}}>
+              {savedStories.length > 1 && <button style={Object.assign({}, b2, {flex: 1})} onClick={function() { setScreen("myStories"); }}>My Stories</button>}
+              <button style={Object.assign({}, b2, {flex: 1})} onClick={doReset}>New Story</button>
+            </div>
           </div>
         </div>
       </div>
@@ -492,10 +592,6 @@ export default function App() {
   );
 
   // CHAT
-  var chatName = chatTarget === "villain" ? vName : lName;
-  var chatColor = chatTarget === "villain" ? "#c0392b" : accent;
-  var chatTitle = chatTarget === "villain" ? "VILLAIN" : (TITLES_MAP[scenario] || "UNKNOWN");
-
   if (screen === "chat") return (
     <div style={W}><div style={G} />
       <div style={Object.assign({}, C, {display: "flex", flexDirection: "column", height: "100vh", paddingBottom: 0})}>
@@ -504,28 +600,28 @@ export default function App() {
         </div>
         <div style={{display: "flex", gap: 0, background: "#0d0d12", borderRadius: 14, overflow: "hidden", border: "1px solid #1a1a24", marginBottom: 12, flexShrink: 0}}>
           <button style={nb(false)} onClick={function() { setScreen("story"); }}>STORY</button>
-          <button style={nb(true)}>CHAT WITH {chatName.toUpperCase()}</button>
+          <button style={nb(true)}>CHAT WITH {lName.toUpperCase()}</button>
         </div>
         <div style={{textAlign: "center", padding: "12px 0", flexShrink: 0}}>
-          <div style={{width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg," + chatColor + "40," + chatColor + "15)", margin: "0 auto 8px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, border: "2px solid " + chatColor + "30"}}>{chatTarget === "villain" ? "\u{1F480}" : (sel && sel.emoji)}</div>
-          <div style={{fontSize: 18, fontWeight: 600, color: chatColor}}>{chatName}</div>
-          <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, letterSpacing: 2, marginTop: 2}}>{chatTitle}</div>
+          <div style={{width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg," + accent + "40," + accent + "15)", margin: "0 auto 8px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, border: "2px solid " + accent + "30"}}>{sel && sel.emoji}</div>
+          <div style={{fontSize: 18, fontWeight: 600, color: accent}}>{lName}</div>
+          <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, letterSpacing: 2, marginTop: 2}}>{TITLES_MAP[scenario] || "CHARACTER"}</div>
         </div>
         <div ref={cRef} style={{flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, padding: "8px 0"}}>
-          {cMsgs.length === 0 && <div style={{textAlign: "center", padding: "40px 20px", color: "#3a3530", fontStyle: "italic", fontSize: 13}}>Say something to {chatName}...<br />They are waiting.</div>}
+          {cMsgs.length === 0 && <div style={{textAlign: "center", padding: "40px 20px", color: "#3a3530", fontStyle: "italic", fontSize: 13}}>Say something to {lName}...<br />They are waiting.</div>}
           {cMsgs.map(function(m, i) { return (
-            <div key={i} style={m.role === "user" ? {alignSelf: "flex-end", background: chatColor + "20", color: "#e8e0d4", padding: "10px 16px", borderRadius: "16px 16px 4px 16px", maxWidth: "80%", fontSize: 14, lineHeight: 1.5} : {alignSelf: "flex-start", background: "#141420", color: "#e8e0d4", padding: "10px 16px", borderRadius: "16px 16px 16px 4px", maxWidth: "80%", fontSize: 14, lineHeight: 1.5}}>
-              {m.role === "li" && <div style={{fontSize: 10, color: chatColor, fontFamily: MONO, letterSpacing: 2, marginBottom: 4}}>{chatName.toUpperCase()}</div>}
+            <div key={i} style={m.role === "user" ? {alignSelf: "flex-end", background: accent + "20", color: "#e8e0d4", padding: "10px 16px", borderRadius: "16px 16px 4px 16px", maxWidth: "80%", fontSize: 14, lineHeight: 1.5} : {alignSelf: "flex-start", background: "#141420", color: "#e8e0d4", padding: "10px 16px", borderRadius: "16px 16px 16px 4px", maxWidth: "80%", fontSize: 14, lineHeight: 1.5}}>
+              {m.role === "li" && <div style={{fontSize: 10, color: accent, fontFamily: MONO, letterSpacing: 2, marginBottom: 4}}>{lName.toUpperCase()}</div>}
               {m.text}
             </div>
           ); })}
           {cBusy && <div style={{alignSelf: "flex-start", background: "#141420", padding: "10px 16px", borderRadius: "16px 16px 16px 4px", maxWidth: "80%", fontSize: 14}}>
-            <div style={{fontSize: 10, color: chatColor, fontFamily: MONO, letterSpacing: 2, marginBottom: 4}}>{chatName.toUpperCase()}</div>
+            <div style={{fontSize: 10, color: accent, fontFamily: MONO, letterSpacing: 2, marginBottom: 4}}>{lName.toUpperCase()}</div>
             <span style={{animation: "pulse 1.2s ease-in-out infinite", color: "#e8e0d4"}}>typing...</span>
           </div>}
         </div>
         <div style={{display: "flex", gap: 10, padding: "12px 0 16px", flexShrink: 0, alignItems: "center"}}>
-          <input style={{flex: 1, padding: "12px 16px", borderRadius: 24, border: "1px solid #222230", background: "#0d0d14", color: "#e8e0d4", fontSize: 14, fontFamily: FONT, outline: "none"}} placeholder={"Message " + chatName + "..."} value={cIn} onChange={function(e) { setCIn(e.target.value); }} onKeyDown={function(e) { if (e.key === "Enter") sendChat(); }} />
+          <input style={{flex: 1, padding: "12px 16px", borderRadius: 24, border: "1px solid #222230", background: "#0d0d14", color: "#e8e0d4", fontSize: 14, fontFamily: FONT, outline: "none"}} placeholder={"Message " + lName + "..."} value={cIn} onChange={function(e) { setCIn(e.target.value); }} onKeyDown={function(e) { if (e.key === "Enter") sendChat(); }} />
           <button onClick={sendChat} style={{width: 44, height: 44, borderRadius: "50%", border: "none", background: accent, color: "#fff", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0}}>{"\u2192"}</button>
         </div>
         <div style={{flexShrink: 0, paddingBottom: 12, display: "flex", gap: 8}}>
