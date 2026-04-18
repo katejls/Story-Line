@@ -498,6 +498,10 @@ export default function App() {
             {subErr && <p style={{color: "#c0392b", fontSize: 12, marginBottom: 8}}>{subErr}</p>}
             <button style={Object.assign({}, b2, {width: "100%"})} onClick={activateSub}>{subLoading ? "Checking..." : "Activate"}</button>
           </div>
+
+          <div style={{marginTop: 24, textAlign: "center"}}>
+            <p style={{fontSize: 11, color: "#3a3530"}}>Need help? <a href="mailto:writteninpurple7@gmail.com" style={{color: accent, textDecoration: "none"}}>writteninpurple7@gmail.com</a></p>
+          </div>
         </div>
       </div>
       <style>{CSS_TEXT}</style>
