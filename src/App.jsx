@@ -25,6 +25,7 @@ var ENDINGS = [
   { id: "twist", emoji: "\u{1F92F}", label: "Plot Twist", desc: "Nothing is what it seems. Jaw-dropping finale.", color: "#e84393" },
   { id: "open", emoji: "\u{1F32C}\uFE0F", label: "Open Ending", desc: "Leaves you wondering. The story lingers.", color: "#0984e3" },
   { id: "dark", emoji: "\u{1F480}", label: "Dark Ending", desc: "The villain wins. Or does the hero become one?", color: "#2d3436" },
+  { id: "betrayal", emoji: "\u{1F52A}", label: "Revenge Romance", desc: "They betray you. You glow up and find someone better.", color: "#e17055" },
   { id: "surprise", emoji: "\u{1F381}", label: "Surprise Me", desc: "Let fate decide. No spoilers.", color: "#fdcb6e" }
 ];
 
@@ -84,6 +85,7 @@ var ENDING_PROMPTS = {
   twist: "End with a massive, jaw-dropping plot twist that recontextualizes everything. The reader should gasp. Nothing was what it seemed.",
   open: "End with an open, ambiguous ending that lingers in the mind. Leave questions unanswered. Let the reader imagine what comes next.",
   dark: "End with a dark, unsettling ending. The villain may win, or the hero crosses a moral line. Leave the reader shaken.",
+  betrayal: "The love interest BETRAYS the main character - cheating, choosing someone else, or breaking their trust completely. The main character is heartbroken but comes back STRONGER. The side character becomes their new love. End with the main character happy with the new person while the original love interest watches and regrets everything. The reader wins in the end.",
   surprise: "End with whatever ending fits the story best - could be happy, tragic, twisted, or anything. Surprise the reader."
 };
 
@@ -156,6 +158,7 @@ export default function App() {
   var _cht = useState([]); var cHist = _cht[0]; var setCHist = _cht[1];
   var _er = useState(""); var err = _er[0]; var setErr = _er[1];
   var _sid = useState(null); var activeStoryId = _sid[0]; var setActiveStoryId = _sid[1];
+  var _cp = useState(null); var chatPartner = _cp[0]; var setChatPartner = _cp[1];
 
   var _saved = useState(function() {
     try { var d = localStorage.getItem("storyline_stories"); return d ? JSON.parse(d) : []; }
@@ -236,8 +239,14 @@ export default function App() {
       setCurText(txt);
       setScreen("story");
       setCMsgs([]);
+
+      var isBetrayal = endingType === "betrayal" && v;
+      var chatWith = isBetrayal ? v : l;
+      var chatRole = isBetrayal ? "the person who was there for " + p + " after " + l + " betrayed them" : "the love interest";
+      setChatPartner(chatWith);
+
       var initHist = [
-        {role: "user", content: "You are " + l + " from a " + sc.label + " story, texting " + p + " after the story just ended. Stay in character. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text like *smiles* or *leans in*. Just write normal messages like texting. Be flirty, intense, or emotional depending on the mood. Never mention AI."},
+        {role: "user", content: "You are " + chatWith + " from a " + sc.label + " story, texting " + p + " after the story just ended. You are " + chatRole + ". Stay in character. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text. Be flirty, intense, or emotional. Never mention AI."},
         {role: "assistant", content: "I understand."}
       ];
       setCHist(initHist);
@@ -248,6 +257,7 @@ export default function App() {
         pName: p, lName: l, vName: v,
         pGender: pg, lGender: lg, vGender: vg,
         ending: endingType,
+        chatPartner: chatWith,
         text: txt,
         chatMsgs: [],
         chatHist: initHist,
@@ -303,6 +313,7 @@ export default function App() {
     setCMsgs(story.chatMsgs || []);
     setCHist(story.chatHist || []);
     setActiveStoryId(story.id);
+    setChatPartner(story.chatPartner || story.lName);
     setScreen("story");
   }
 
@@ -319,7 +330,7 @@ export default function App() {
     setCMsgs(newMsgs);
     setCBusy(true);
     var sc = SCENARIOS.find(function(s) { return s.id === scenario; });
-    var sys = "You are " + lName + " from a " + sc.label + " story, texting " + pName + ". Rules: Stay in character always. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text like *smiles*. Just write normal text messages. Be emotionally engaging - flirty, intense, protective, jealous, or vulnerable. Use " + pName + " name sometimes. NEVER mention being AI.";
+    var sys = "You are " + (chatPartner || lName) + " from a " + sc.label + " story, texting " + pName + ". Rules: Stay in character always. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text like *smiles*. Just write normal text messages. Be emotionally engaging - flirty, intense, protective, jealous, or vulnerable. Use " + pName + " name sometimes. NEVER mention being AI.";
     var msgs = cHist.concat([{role: "user", content: msg}]);
     callAPI(sys, msgs, 200).then(function(d) {
       var reply = "";
@@ -660,12 +671,12 @@ export default function App() {
               if (cHist.length === 0) {
                 var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
                 setCHist([
-                  {role: "user", content: "You are " + lName + " from a " + (sc2 && sc2.label) + " story, texting " + pName + ". Stay in character. 1-3 sentences. Text casually. NO asterisks or action text. Never mention AI."},
+                  {role: "user", content: "You are " + (chatPartner || lName) + " from a " + (sc2 && sc2.label) + " story, texting " + pName + ". Stay in character. 1-3 sentences. Text casually. NO asterisks or action text. Never mention AI."},
                   {role: "assistant", content: "I understand."}
                 ]);
               }
               setScreen("chat");
-            }}>CHAT WITH {lName.toUpperCase()}</button>
+            }}>CHAT WITH {(chatPartner || lName).toUpperCase()}</button>
         </div>
         <div style={{display: "flex", gap: 6, marginBottom: 14, flexWrap: "wrap"}}>
           {sel && <span style={pl}>{sel.emoji} {sel.label}</span>}
@@ -682,12 +693,12 @@ export default function App() {
               if (cHist.length === 0) {
                 var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
                 setCHist([
-                  {role: "user", content: "You are " + lName + " from a " + (sc2 && sc2.label) + " story, texting " + pName + ". Stay in character. 1-3 sentences. Text casually. NO asterisks or action text. Never mention AI."},
+                  {role: "user", content: "You are " + (chatPartner || lName) + " from a " + (sc2 && sc2.label) + " story, texting " + pName + ". Stay in character. 1-3 sentences. Text casually. NO asterisks or action text. Never mention AI."},
                   {role: "assistant", content: "I understand."}
                 ]);
               }
               setScreen("chat");
-            }}>{lName} wants to talk to you...</button>
+            }}>{(chatPartner || lName)} wants to talk to you...</button>
             <div style={{display: "flex", gap: 8}}>
               {savedStories.length > 1 && <button style={Object.assign({}, b2, {flex: 1})} onClick={function() { setScreen("myStories"); }}>My Stories</button>}
               <button style={Object.assign({}, b2, {flex: 1})} onClick={doReset}>New Story</button>
@@ -700,6 +711,7 @@ export default function App() {
   );
 
   // CHAT
+  var cName = chatPartner || lName;
   if (screen === "chat") return (
     <div style={W}><div style={G} />
       <div style={Object.assign({}, C, {display: "flex", flexDirection: "column", height: "100vh", paddingBottom: 0})}>
@@ -708,28 +720,28 @@ export default function App() {
         </div>
         <div style={{display: "flex", gap: 0, background: "#0d0d12", borderRadius: 14, overflow: "hidden", border: "1px solid #1a1a24", marginBottom: 12, flexShrink: 0}}>
           <button style={nb(false)} onClick={function() { setScreen("story"); }}>STORY</button>
-          <button style={nb(true)}>CHAT WITH {lName.toUpperCase()}</button>
+          <button style={nb(true)}>CHAT WITH {cName.toUpperCase()}</button>
         </div>
         <div style={{textAlign: "center", padding: "12px 0", flexShrink: 0}}>
           <div style={{width: 56, height: 56, borderRadius: "50%", background: "linear-gradient(135deg," + accent + "40," + accent + "15)", margin: "0 auto 8px", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 24, border: "2px solid " + accent + "30"}}>{sel && sel.emoji}</div>
-          <div style={{fontSize: 18, fontWeight: 600, color: accent}}>{lName}</div>
-          <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, letterSpacing: 2, marginTop: 2}}>{TITLES_MAP[scenario] || "CHARACTER"}</div>
+          <div style={{fontSize: 18, fontWeight: 600, color: accent}}>{cName}</div>
+          <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, letterSpacing: 2, marginTop: 2}}>{ending === "betrayal" ? "YOUR NEW LOVE" : (TITLES_MAP[scenario] || "CHARACTER")}</div>
         </div>
         <div ref={cRef} style={{flex: 1, overflowY: "auto", display: "flex", flexDirection: "column", gap: 10, padding: "8px 0"}}>
-          {cMsgs.length === 0 && <div style={{textAlign: "center", padding: "40px 20px", color: "#3a3530", fontStyle: "italic", fontSize: 13}}>Say something to {lName}...<br />They are waiting.</div>}
+          {cMsgs.length === 0 && <div style={{textAlign: "center", padding: "40px 20px", color: "#3a3530", fontStyle: "italic", fontSize: 13}}>Say something to {cName}...<br />They are waiting.</div>}
           {cMsgs.map(function(m, i) { return (
             <div key={i} style={m.role === "user" ? {alignSelf: "flex-end", background: accent + "20", color: "#e8e0d4", padding: "10px 16px", borderRadius: "16px 16px 4px 16px", maxWidth: "80%", fontSize: 14, lineHeight: 1.5} : {alignSelf: "flex-start", background: "#141420", color: "#e8e0d4", padding: "10px 16px", borderRadius: "16px 16px 16px 4px", maxWidth: "80%", fontSize: 14, lineHeight: 1.5}}>
-              {m.role === "li" && <div style={{fontSize: 10, color: accent, fontFamily: MONO, letterSpacing: 2, marginBottom: 4}}>{lName.toUpperCase()}</div>}
+              {m.role === "li" && <div style={{fontSize: 10, color: accent, fontFamily: MONO, letterSpacing: 2, marginBottom: 4}}>{cName.toUpperCase()}</div>}
               {m.text}
             </div>
           ); })}
           {cBusy && <div style={{alignSelf: "flex-start", background: "#141420", padding: "10px 16px", borderRadius: "16px 16px 16px 4px", maxWidth: "80%", fontSize: 14}}>
-            <div style={{fontSize: 10, color: accent, fontFamily: MONO, letterSpacing: 2, marginBottom: 4}}>{lName.toUpperCase()}</div>
+            <div style={{fontSize: 10, color: accent, fontFamily: MONO, letterSpacing: 2, marginBottom: 4}}>{cName.toUpperCase()}</div>
             <span style={{animation: "pulse 1.2s ease-in-out infinite", color: "#e8e0d4"}}>typing...</span>
           </div>}
         </div>
         <div style={{display: "flex", gap: 10, padding: "12px 0 16px", flexShrink: 0, alignItems: "center"}}>
-          <input style={{flex: 1, padding: "12px 16px", borderRadius: 24, border: "1px solid #222230", background: "#0d0d14", color: "#e8e0d4", fontSize: 14, fontFamily: FONT, outline: "none"}} placeholder={"Message " + lName + "..."} value={cIn} onChange={function(e) { setCIn(e.target.value); }} onKeyDown={function(e) { if (e.key === "Enter") sendChat(); }} />
+          <input style={{flex: 1, padding: "12px 16px", borderRadius: 24, border: "1px solid #222230", background: "#0d0d14", color: "#e8e0d4", fontSize: 14, fontFamily: FONT, outline: "none"}} placeholder={"Message " + cName + "..."} value={cIn} onChange={function(e) { setCIn(e.target.value); }} onKeyDown={function(e) { if (e.key === "Enter") sendChat(); }} />
           <button onClick={sendChat} style={{width: 44, height: 44, borderRadius: "50%", border: "none", background: accent, color: "#fff", fontSize: 18, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0}}>{"\u2192"}</button>
         </div>
         <div style={{flexShrink: 0, paddingBottom: 12, display: "flex", gap: 8}}>
