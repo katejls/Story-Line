@@ -50,16 +50,16 @@ var SIDE_ROLES = [
 ];
 
 var ROLE_PROMPTS = {
-  villain: "who is the villain - dangerous, manipulative, will hurt anyone to get what they want",
-  ex: "who is the love interest's ex showing up trying to win them back - making the reader insecure and jealous",
-  affair: "who flirts with or gets too close to the love interest - creating suspicion, jealousy, and heartbreak. The reader catches them together or hears rumors. Drama about trust being broken",
-  bestfriend: "who is secretly in love with the love interest and tries to steal them away behind the reader's back",
-  rival: "who openly pursues the love interest, flirting and touching them in front of the reader to provoke jealousy",
-  boss: "who has power over the love interest and uses it to get close to them, making the reader feel helpless",
-  family: "who is connected through family (step-sibling, adopted) creating forbidden closeness with the love interest",
-  secretary: "who works closely with the love interest and is clearly obsessed with them - the reader sees the signs",
-  admirer: "who is a secret admirer of the love interest - leaving them gifts and notes, identity unknown, driving the reader crazy",
-  stranger: "who appears out of nowhere and instantly has chemistry with the love interest - who are they?"
+  villain: "- the villain, dangerous and threatening",
+  ex: "- the ex trying to win the love interest back",
+  affair: "- flirts with the love interest, creating jealousy",
+  bestfriend: "- secretly in love with the love interest",
+  rival: "- openly pursuing the love interest",
+  boss: "- has power over the love interest, blurred boundaries",
+  family: "- step-sibling/adopted family, forbidden closeness",
+  secretary: "- works with and is obsessed with the love interest",
+  admirer: "- secret admirer of the love interest",
+  stranger: "- mysterious stranger with chemistry with the love interest"
 };
 
 function rName(gender) {
@@ -80,13 +80,13 @@ var SETTINGS = ["modern day big city", "small coastal town", "1920s noir", "futu
 var OPENINGS = ["a chance encounter", "a shocking discovery", "a desperate escape", "a mistaken identity", "a forbidden meeting", "a deadly accident", "waking up with no memory", "receiving a mysterious letter", "witnessing something forbidden", "being betrayed by someone close", "arriving somewhere new", "a funeral", "a high-stakes negotiation", "a storm that changes everything", "a wedding that goes wrong", "a secret revealed at midnight"];
 
 var ENDING_PROMPTS = {
-  happy: "End with a satisfying, heartwarming happy ending. Love wins, the characters find peace, and the reader feels warm inside.",
-  sad: "End with a beautiful but tragic ending. Make the reader feel deep emotion - loss, sacrifice, or bittersweet acceptance. Make them cry.",
-  twist: "End with a massive, jaw-dropping plot twist that recontextualizes everything. The reader should gasp. Nothing was what it seemed.",
-  open: "End with an open, ambiguous ending that lingers in the mind. Leave questions unanswered. Let the reader imagine what comes next.",
-  dark: "End with a dark, unsettling ending. The villain may win, or the hero crosses a moral line. Leave the reader shaken.",
-  betrayal: "BETRAYAL ARC: The love interest cheats on or betrays the main character with some random unnamed person. The main character is heartbroken and devastated. But the SIDE CHARACTER (named in the story) was always there for them. The side character comforts them, and they slowly fall for each other. End with the main character happy with the side character (their new love) while the original love interest regrets everything but it is too late. The side character is the hero of this story.",
-  surprise: "End with whatever ending fits the story best - could be happy, tragic, twisted, or anything. Surprise the reader."
+  happy: "Happy ending. Love wins.",
+  sad: "Tragic ending. Make them cry.",
+  twist: "Jaw-dropping plot twist ending.",
+  open: "Open ambiguous ending.",
+  dark: "Dark unsettling ending.",
+  betrayal: "Love interest betrays the reader. Reader ends up with the second lead. Love interest regrets everything.",
+  surprise: "Surprise ending."
 };
 
 var SPICE_LEVELS = [
@@ -97,10 +97,10 @@ var SPICE_LEVELS = [
 ];
 
 var SPICE_PROMPTS = {
-  none: "Include whatever level of romance fits the story naturally.",
-  clean: "Keep the romance sweet and wholesome. Tender moments, hand-holding, forehead kisses. No steamy or suggestive content.",
-  spicy: "Include heated romantic tension - lingering touches, almost-kiss moments, intense eye contact, breathless proximity. Suggestive but fade to black before anything explicit.",
-  mature: "Include steamy mature romance scenes - passionate kisses, wandering hands, pressing against walls, heavy breathing, clothes being pulled, staying the night. Be intensely suggestive and sensual but fade to black before anything fully explicit. Focus on desire, wanting, and the tension of bodies close together."
+  none: "",
+  clean: "Sweet wholesome romance only.",
+  spicy: "Heated tension, almost-kisses, fade to black.",
+  mature: "Steamy scenes - passionate kisses, wandering hands, suggestive but fade to black."
 };
 
 var FONT = "Cormorant Garamond,Georgia,serif";
@@ -226,9 +226,9 @@ export default function App() {
     if (sl) {
       var slPro = pronounMap[slg] || "they/them/their";
       if (endingType === "betrayal") {
-        secondLeadLine = " SECOND LEAD: " + sl + " (pronouns: " + slPro + ") who has always quietly loved the main character. When the love interest betrays " + p + ", " + sl + " is the one who is there for them. " + p + " ends up falling for " + sl + " instead.";
+        secondLeadLine = " " + sl + " (" + slPro + ") is the second lead - reader ends up with them.";
       } else {
-        secondLeadLine = " SECOND LEAD: " + sl + " (pronouns: " + slPro + ") who also has feelings for " + p + ". Create love triangle tension. " + sl + " is kind, reliable, and the safe choice - but the heart wants what it wants.";
+        secondLeadLine = " " + sl + " (" + slPro + ") is the second lead, loves the reader. Love triangle.";
       }
     }
     var setting = SETTINGS[Math.floor(Math.random() * SETTINGS.length)];
