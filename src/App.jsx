@@ -88,12 +88,14 @@ var ENDING_PROMPTS = {
 };
 
 var SPICE_LEVELS = [
-  { id: "clean", emoji: "\u{2764}\uFE0F", label: "Clean", desc: "Sweet romance, wholesome love" },
-  { id: "spicy", emoji: "\u{1F336}\uFE0F", label: "Spicy", desc: "Heated tension, almost-kisses, fade to black" },
-  { id: "mature", emoji: "\u{1F525}", label: "Mature", desc: "Steamy scenes, intense desire, suggestive" }
+  { id: "none", emoji: "\u{1F937}", label: "No Preference", desc: "Let the story decide" },
+  { id: "clean", emoji: "\u{2764}\uFE0F", label: "Clean", desc: "Sweet, wholesome" },
+  { id: "spicy", emoji: "\u{1F336}\uFE0F", label: "Spicy", desc: "Tension, fade to black" },
+  { id: "mature", emoji: "\u{1F525}", label: "Mature", desc: "Steamy, suggestive" }
 ];
 
 var SPICE_PROMPTS = {
+  none: "Include whatever level of romance fits the story naturally.",
   clean: "Keep the romance sweet and wholesome. Tender moments, hand-holding, forehead kisses. No steamy or suggestive content.",
   spicy: "Include heated romantic tension - lingering touches, almost-kiss moments, intense eye contact, breathless proximity. Suggestive but fade to black before anything explicit.",
   mature: "Include steamy mature romance scenes - passionate kisses, wandering hands, pressing against walls, heavy breathing, clothes being pulled, staying the night. Be intensely suggestive and sensual but fade to black before anything fully explicit. Focus on desire, wanting, and the tension of bodies close together."
@@ -134,7 +136,7 @@ export default function App() {
   var _ln = useState(""); var lName = _ln[0]; var setLName = _ln[1];
   var _vn = useState(""); var vName = _vn[0]; var setVName = _vn[1];
   var _en = useState(null); var ending = _en[0]; var setEnding = _en[1];
-  var _sp = useState("spicy"); var spiceLevel = _sp[0]; var setSpiceLevel = _sp[1];
+  var _sp = useState(null); var spiceLevel = _sp[0]; var setSpiceLevel = _sp[1];
   var _pg = useState(null); var pGender = _pg[0]; var setPGender = _pg[1];
   var _lg = useState(null); var lGender = _lg[0]; var setLGender = _lg[1];
   var _vg = useState(null); var vGender = _vg[0]; var setVGender = _vg[1];
@@ -287,7 +289,7 @@ export default function App() {
   function doReset() {
     setScreen("scenario"); setScenario(null); setCurText(""); setShown(""); setErr("");
     setNMode(null); setLMode(null); setVMode(null); setEnding(null);
-    setPGender(null); setLGender(null); setVGender(null); setVRole(null); setSpiceLevel("spicy");
+    setPGender(null); setLGender(null); setVGender(null); setVRole(null); setSpiceLevel(null);
     setPName(""); setLName(""); setVName("");
     setCMsgs([]); setCHist([]); setActiveStoryId(null);
   }
