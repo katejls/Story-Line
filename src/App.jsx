@@ -132,7 +132,26 @@ function callAPI(system, messages, maxTokens) {
 }
 
 export default function App() {
+  var DAILY_LIMIT = 5;
   var _s = useState("splash"); var screen = _s[0]; var setScreen = _s[1];
+
+  function getDailyCount() {
+    try {
+      var d = JSON.parse(localStorage.getItem("storyline_daily") || "{}");
+      var today = new Date().toDateString();
+      if (d.date !== today) return 0;
+      return d.count || 0;
+    } catch(e) { return 0; }
+  }
+
+  function addDailyCount() {
+    var today = new Date().toDateString();
+    var current = getDailyCount();
+    localStorage.setItem("storyline_daily", JSON.stringify({ date: today, count: current + 1 }));
+  }
+
+  var _dc = useState(getDailyCount()); var dailyCount = _dc[0]; var setDailyCount = _dc[1];
+
   var _sc = useState(null); var scenario = _sc[0]; var setScenario = _sc[1];
   var _pn = useState(""); var pName = _pn[0]; var setPName = _pn[1];
   var _ln = useState(""); var lName = _ln[0]; var setLName = _ln[1];
@@ -211,6 +230,11 @@ export default function App() {
   }, [busy]);
 
   function generateStory(scId, p, l, v, endingType, pg, lg, vg, vr, spice, sl, slg) {
+    var count = getDailyCount();
+    if (count >= DAILY_LIMIT) {
+      setErr("You have reached your daily limit of " + DAILY_LIMIT + " stories. Come back tomorrow!");
+      return;
+    }
     setBusy(true); setErr("");
     var sc = SCENARIOS.find(function(s) { return s.id === scId; });
     var pronounMap = { male: "he/him/his", female: "she/her/her", nonbinary: "they/them/their" };
@@ -280,6 +304,8 @@ export default function App() {
       setActiveStoryId(newStory.id);
       var updated = [newStory].concat(savedStories);
       saveToStorage(updated);
+      addDailyCount();
+      setDailyCount(getDailyCount());
       setBusy(false);
     }).catch(function(e) {
       setErr("Network error: " + e.message);
@@ -349,7 +375,8 @@ export default function App() {
     var sc = SCENARIOS.find(function(s) { return s.id === scenario; });
     var sys = "You are " + chatPartner + " from a " + sc.label + " story, texting " + pName + ". Rules: Stay in character always. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text like *smiles*. Just write normal text messages. Be emotionally engaging - flirty, intense, protective, jealous, or vulnerable. Use " + pName + " name sometimes. NEVER mention being AI.";
     var msgs = cHist.concat([{role: "user", content: msg}]);
-    callAPI(sys, msgs, 200).then(function(d) {
+    var apiMsgs = msgs.length > 22 ? msgs.slice(0, 2).concat(msgs.slice(-20)) : msgs;
+    callAPI(sys, apiMsgs, 200).then(function(d) {
       var reply = "";
       if (d.content) { for (var ci = 0; ci < d.content.length; ci++) { reply += (d.content[ci].text || ""); } }
       if (!reply) reply = "...";
@@ -657,7 +684,7 @@ export default function App() {
 
         {ending && (
           <div style={{marginTop: 16, display: "flex", flexDirection: "column", gap: 8}}>
-            <button style={bt(false)} onClick={customStart}>Write My Story</button>
+            <button style={bt(dailyCount >= DAILY_LIMIT)} onClick={customStart} disabled={dailyCount >= DAILY_LIMIT}>{dailyCount >= DAILY_LIMIT ? "Daily limit reached" : "Write My Story (" + (DAILY_LIMIT - dailyCount) + " left today)"}</button>
           </div>
         )}
         <button style={Object.assign({}, b2, {marginTop: 8})} onClick={function() { setScreen("nameSetup"); }}>Back</button>
