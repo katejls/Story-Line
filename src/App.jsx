@@ -462,12 +462,6 @@ export default function App() {
             </div>
           ); })}
         </div>
-        {scenario && (
-          <div style={{marginTop: 20, display: "flex", flexDirection: "column", gap: 8}}>
-            <button style={bt(false)} onClick={function() { setScreen("nameSetup"); }}>Personalize My Story</button>
-            <button style={b2} onClick={function() { quickStart(scenario); }}>Skip - Random Everything</button>
-          </div>
-        )}
         {savedStories.length > 0 && (
           <div style={{marginTop: 20}}>
             <div style={divider} />
@@ -476,7 +470,16 @@ export default function App() {
             </button>
           </div>
         )}
+        <div style={{height: scenario ? 120 : 0}} />
       </div>
+      {scenario && (
+        <div style={{position: "fixed", bottom: 0, left: 0, right: 0, padding: "16px 20px 28px", background: "linear-gradient(transparent,#07070b 30%)", zIndex: 10}}>
+          <div style={{maxWidth: 480, margin: "0 auto", display: "flex", flexDirection: "column", gap: 8}}>
+            <button style={bt(false)} onClick={function() { setScreen("nameSetup"); }}>Personalize My Story</button>
+            <button style={b2} onClick={function() { quickStart(scenario); }}>Skip - Random Everything</button>
+          </div>
+        </div>
+      )}
       <style>{CSS_TEXT}</style>
     </div>
   );
