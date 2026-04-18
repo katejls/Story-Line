@@ -1,4 +1,1 @@
--e node_modules
-dist
-.vercel
-.env
+node_modules
