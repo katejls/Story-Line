@@ -112,7 +112,7 @@ function callAPI(system, messages, maxTokens) {
     var payload = {
       system: system,
       messages: messages,
-      max_tokens: maxTokens || 1200
+      max_tokens: maxTokens || 1500
     };
     return fetch("/api/chat", {
       method: "POST",
@@ -257,13 +257,13 @@ export default function App() {
     var endingInstruction = ENDING_PROMPTS[endingType] || ENDING_PROMPTS.surprise;
 
     var spiceInstruction = SPICE_PROMPTS[spice] || SPICE_PROMPTS.spicy;
-    var sys = "Write a " + sc.label + " story, Wattpad style. " + p + " (" + pPro + ") is the reader (second person). " + l + " (" + lPro + ") is the love interest. 500-700 words. Bold title. Casual, emotional, dramatic. " + (HINTS[scId] || "") + ". " + spiceInstruction + " " + endingInstruction + villainLine + secondLeadLine;
+    var sys = "Write a " + sc.label + " story, Wattpad style. " + p + " (" + pPro + ") is the reader (second person). " + l + " (" + lPro + ") is the love interest. 800-1000 words. Bold title. Casual, emotional, dramatic. " + (HINTS[scId] || "") + ". " + spiceInstruction + " " + endingInstruction + villainLine + secondLeadLine;
 
     var uMsg = "Write a complete personalized " + sc.label + " short story. Setting: " + setting + ". The story begins with " + opening + ". Main character: " + p + ". Love interest: " + l + "." + (v ? " Villain: " + v + "." : "") + (sl ? " Second lead: " + sl + "." : "") + " Include a powerful beginning, an emotional middle with rising tension, and a memorable ending. Make it unforgettable.";
 
     var msgs = [{role: "user", content: uMsg}];
 
-    callAPI(sys, msgs, 1200).then(function(d) {
+    callAPI(sys, msgs, 1500).then(function(d) {
       console.log("API response", d);
       var txt = "";
       if (d.content) { for (var ci = 0; ci < d.content.length; ci++) { txt += (d.content[ci].text || ""); } }
