@@ -235,7 +235,7 @@ export default function App() {
     var endingInstruction = ENDING_PROMPTS[endingType] || ENDING_PROMPTS.surprise;
 
     var spiceInstruction = SPICE_PROMPTS[spice] || SPICE_PROMPTS.spicy;
-    var sys = "You write addictive " + sc.label + " stories like the top novels on Wattpad and Dreame. RULES: Main character is " + p + " (pronouns: " + pPro + ") in second person (you). Love interest is " + l + " (pronouns: " + lPro + "). Write a COMPLETE story with beginning, middle, and ending. 800-1000 words. Start with a bold creative title. Write casual, raw, emotional. Short punchy lines. Lots of dialogue. Include jealousy, tension, heated arguments, heartbreak, or intense chemistry. Make " + l + " irresistible. Include " + (HINTS[scId] || "tension and depth") + ". Go HARD on the drama. ROMANCE LEVEL: " + spiceInstruction + " ENDING: " + endingInstruction + ". Story " + storyId + " must be unique." + villainLine + secondLeadLine;
+    var sys = "Write a " + sc.label + " story, Wattpad style. " + p + " (" + pPro + ") is the reader (second person). " + l + " (" + lPro + ") is the love interest. 800-1000 words. Bold title. Casual, emotional, dramatic. " + (HINTS[scId] || "") + ". " + spiceInstruction + " " + endingInstruction + villainLine + secondLeadLine;
 
     var uMsg = "Write a complete personalized " + sc.label + " short story. Setting: " + setting + ". The story begins with " + opening + ". Main character: " + p + ". Love interest: " + l + "." + (v ? " Villain: " + v + "." : "") + (sl ? " Second lead: " + sl + "." : "") + " Include a powerful beginning, an emotional middle with rising tension, and a memorable ending. Make it unforgettable.";
 
