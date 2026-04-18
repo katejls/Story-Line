@@ -112,7 +112,7 @@ function callAPI(system, messages, maxTokens) {
     var payload = {
       system: system,
       messages: messages,
-      max_tokens: maxTokens || 2500
+      max_tokens: maxTokens || 1200
     };
     return fetch("/api/chat", {
       method: "POST",
@@ -257,13 +257,13 @@ export default function App() {
     var endingInstruction = ENDING_PROMPTS[endingType] || ENDING_PROMPTS.surprise;
 
     var spiceInstruction = SPICE_PROMPTS[spice] || SPICE_PROMPTS.spicy;
-    var sys = "Write a " + sc.label + " story, Wattpad style. " + p + " (" + pPro + ") is the reader (second person). " + l + " (" + lPro + ") is the love interest. 1500-2000 words. Bold title. Casual, emotional, dramatic. " + (HINTS[scId] || "") + ". " + spiceInstruction + " " + endingInstruction + villainLine + secondLeadLine;
+    var sys = "Write a " + sc.label + " story, Wattpad style. " + p + " (" + pPro + ") is the reader (second person). " + l + " (" + lPro + ") is the love interest. 500-700 words. Bold title. Casual, emotional, dramatic. " + (HINTS[scId] || "") + ". " + spiceInstruction + " " + endingInstruction + villainLine + secondLeadLine;
 
     var uMsg = "Write a complete personalized " + sc.label + " short story. Setting: " + setting + ". The story begins with " + opening + ". Main character: " + p + ". Love interest: " + l + "." + (v ? " Villain: " + v + "." : "") + (sl ? " Second lead: " + sl + "." : "") + " Include a powerful beginning, an emotional middle with rising tension, and a memorable ending. Make it unforgettable.";
 
     var msgs = [{role: "user", content: uMsg}];
 
-    callAPI(sys, msgs, 2500).then(function(d) {
+    callAPI(sys, msgs, 1200).then(function(d) {
       console.log("API response", d);
       var txt = "";
       if (d.content) { for (var ci = 0; ci < d.content.length; ci++) { txt += (d.content[ci].text || ""); } }
@@ -478,7 +478,7 @@ export default function App() {
             </div>
           </div>
           {SCENARIOS.map(function(s) { return (
-            <div key={s.id} style={cd(scenario === s.id, s.color)} onClick={function() { setScenario(s.id); }}>
+            <div key={s.id} style={cd(scenario === s.id, s.color)} onClick={function() { setScenario(s.id); setTimeout(function() { window.scrollTo({ top: document.body.scrollHeight, behavior: "smooth" }); }, 100); }}>
               <div style={{fontSize: 28, width: 44, textAlign: "center", flexShrink: 0}}>{s.emoji}</div>
               <div style={{flex: 1}}>
                 <div style={{fontSize: 16, fontWeight: 600, color: scenario === s.id ? s.color : "#e8e0d4"}}>{s.label}</div>
@@ -764,7 +764,7 @@ export default function App() {
               }
               setScreen("chat");
             }}>{lName} wants to talk to you...</button>
-            {slName && slName !== lName && <button style={Object.assign({}, b2, {borderColor: "#2e86de40", color: "#2e86de"})} onClick={function() {
+            {ending === "betrayal" && slName && slName !== lName && <button style={Object.assign({}, b2, {borderColor: "#2e86de40", color: "#2e86de"})} onClick={function() {
               setChatPartner(slName);
               if (!allChats[slName] || !allChats[slName].hist || allChats[slName].hist.length === 0) {
                 var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
