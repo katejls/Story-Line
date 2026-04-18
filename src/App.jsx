@@ -133,6 +133,7 @@ function callAPI(system, messages, maxTokens) {
 
 export default function App() {
   var DAILY_LIMIT = 5;
+  var isAdmin = (function() { try { return localStorage.getItem("storyline_admin") === "katejls2025"; } catch(e) { return false; } })();
   var _s = useState("splash"); var screen = _s[0]; var setScreen = _s[1];
 
   function getDailyCount() {
@@ -231,7 +232,7 @@ export default function App() {
 
   function generateStory(scId, p, l, v, endingType, pg, lg, vg, vr, spice, sl, slg) {
     var count = getDailyCount();
-    if (count >= DAILY_LIMIT) {
+    if (count >= DAILY_LIMIT && !isAdmin) {
       setErr("You have reached your daily limit of " + DAILY_LIMIT + " stories. Come back tomorrow!");
       return;
     }
@@ -684,7 +685,7 @@ export default function App() {
 
         {ending && (
           <div style={{marginTop: 16, display: "flex", flexDirection: "column", gap: 8}}>
-            <button style={bt(dailyCount >= DAILY_LIMIT)} onClick={customStart} disabled={dailyCount >= DAILY_LIMIT}>{dailyCount >= DAILY_LIMIT ? "Daily limit reached" : "Write My Story (" + (DAILY_LIMIT - dailyCount) + " left today)"}</button>
+            <button style={bt(!isAdmin && dailyCount >= DAILY_LIMIT)} onClick={customStart} disabled={!isAdmin && dailyCount >= DAILY_LIMIT}>{isAdmin ? "Write My Story" : (dailyCount >= DAILY_LIMIT ? "Daily limit reached" : "Write My Story (" + (DAILY_LIMIT - dailyCount) + " left today)")}</button>
           </div>
         )}
         <button style={Object.assign({}, b2, {marginTop: 8})} onClick={function() { setScreen("nameSetup"); }}>Back</button>
