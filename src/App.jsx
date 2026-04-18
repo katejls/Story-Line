@@ -417,9 +417,12 @@ export default function App() {
     setAllChats(newChats);
     setCBusy(true);
     var sc = SCENARIOS.find(function(s) { return s.id === scenario; });
-    var sys = "You are " + chatPartner + " from a " + sc.label + " story, texting " + pName + ". Rules: Stay in character always. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text like *smiles*. Just write normal text messages. Be emotionally engaging - flirty, intense, protective, jealous, or vulnerable. Use " + pName + " name sometimes. NEVER mention being AI.";
-    var msgs = cHist.concat([{role: "user", content: msg}]);
-    var apiMsgs = msgs.length > 22 ? msgs.slice(0, 2).concat(msgs.slice(-20)) : msgs;
+    var sys = "You are " + chatPartner + " from a " + sc.label + " story, texting " + pName + ". Rules: Stay in character always. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text like *smiles*. Just write normal text messages. Be emotionally engaging - flirty, intense, protective, jealous, or vulnerable. Use " + pName + " name sometimes. NEVER mention being AI. NEVER break character. Just reply as " + chatPartner + " would text.";
+    var realHist = cHist.filter(function(m) { return m.content !== "I understand."; });
+    var msgs = realHist.concat([{role: "user", content: msg}]);
+    var apiMsgs = msgs.length > 20 ? msgs.slice(-20) : msgs;
+    if (apiMsgs.length > 0 && apiMsgs[0].role === "assistant") { apiMsgs = apiMsgs.slice(1); }
+    if (apiMsgs.length === 0) { apiMsgs = [{role: "user", content: msg}]; }
     callAPI(sys, apiMsgs, 200).then(function(d) {
       var reply = "";
       if (d.content) { for (var ci = 0; ci < d.content.length; ci++) { reply += (d.content[ci].text || ""); } }
