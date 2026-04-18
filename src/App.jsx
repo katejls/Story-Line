@@ -133,9 +133,12 @@ function callAPI(system, messages, maxTokens) {
 
 export default function App() {
   var DAILY_LIMIT = 5;
+  var KOFI_URL = "https://ko-fi.com/summary/7a44ea7c-84ce-45d5-b0ed-5b83a556a397";
   var isAdmin = (function() { try { return localStorage.getItem("storyline_admin") === "Kraisha"; } catch(e) { return false; } })();
-  var _s = useState("splash"); var screen = _s[0]; var setScreen = _s[1];
+  var isSubscribed = (function() { try { return !!localStorage.getItem("storyline_sub"); } catch(e) { return false; } })();
+  var _s = useState(isAdmin || isSubscribed ? "splash" : "paywall"); var screen = _s[0]; var setScreen = _s[1];
   var _tap = useState(0); var tapCount = _tap[0]; var setTapCount = _tap[1];
+  var _subEmail = useState(""); var subEmail = _subEmail[0]; var setSubEmail = _subEmail[1];
 
   function handleLogoTap() {
     var newCount = tapCount + 1;
@@ -148,6 +151,12 @@ export default function App() {
         window.location.reload();
       }
     }
+  }
+
+  function activateSub() {
+    if (!subEmail.trim()) return;
+    localStorage.setItem("storyline_sub", subEmail.trim());
+    setScreen("splash");
   }
 
   function getDailyCount() {
@@ -437,6 +446,39 @@ export default function App() {
   var LO = {fontSize: 10, letterSpacing: 8, textTransform: "uppercase", color: accent, fontFamily: MONO};
   function nb(a) { return {flex: 1, padding: "12px", background: a ? accent + "15" : "transparent", color: a ? accent : "#4a4540", border: "none", fontSize: 12, fontFamily: MONO, letterSpacing: 1, cursor: "pointer", borderBottom: a ? "2px solid " + accent : "2px solid transparent"}; }
   var divider = {height: 1, background: "linear-gradient(90deg,transparent,#1a1a24,transparent)", margin: "20px 0"};
+
+  // PAYWALL
+  if (screen === "paywall") return (
+    <div style={W}><div style={G} />
+      <div style={Object.assign({}, C, {display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", textAlign: "center"})}>
+        <h1 style={{fontSize: 48, fontWeight: 300, lineHeight: 1.05, background: "linear-gradient(135deg,#e8e0d4 30%,#c9a84c)", WebkitBackgroundClip: "text", WebkitTextFillColor: "transparent"}}>Storyline</h1>
+        <p style={{fontSize: 14, color: "#6b645a", fontStyle: "italic", lineHeight: 1.6, maxWidth: 300, marginTop: 12}}>Your personalized AI novel experience.<br />Live the story. Chat the character.</p>
+
+        <div style={{marginTop: 32, width: "100%", maxWidth: 340}}>
+          <div style={{padding: "24px 20px", borderRadius: 20, border: "1.5px solid #c9a84c30", background: "#0d0d1490"}}>
+            <div style={{fontSize: 11, letterSpacing: 4, color: "#c9a84c", fontFamily: MONO, marginBottom: 8}}>PREMIUM</div>
+            <div style={{fontSize: 36, fontWeight: 300, color: "#e8e0d4"}}>$9.99<span style={{fontSize: 14, color: "#5a544a"}}>/month</span></div>
+            <div style={{marginTop: 16, fontSize: 13, color: "#8a8475", lineHeight: 1.8, textAlign: "left"}}>
+              {"\u2713"} 5 personalized stories per day<br />
+              {"\u2713"} 16 genres to choose from<br />
+              {"\u2713"} Chat with your love interest<br />
+              {"\u2713"} Choose ending, romance level, villain<br />
+              {"\u2713"} Second lead + love triangles<br />
+              {"\u2713"} Story library saved on your device
+            </div>
+            <a href={KOFI_URL} target="_blank" rel="noopener noreferrer" style={{display: "block", marginTop: 20, padding: "16px", borderRadius: 14, background: "linear-gradient(135deg,#c9a84c,#c9a84cbb)", color: "#fff", fontSize: 15, fontWeight: 600, textDecoration: "none", letterSpacing: 1, boxShadow: "0 4px 30px #c9a84c30"}}>Subscribe on Ko-fi</a>
+          </div>
+
+          <div style={{marginTop: 24}}>
+            <p style={{fontSize: 12, color: "#5a544a", marginBottom: 8}}>Already subscribed? Enter your Ko-fi email:</p>
+            <input style={Object.assign({}, inp, {textAlign: "center", marginBottom: 10})} placeholder="your@email.com" value={subEmail} onChange={function(e) { setSubEmail(e.target.value); }} onKeyDown={function(e) { if (e.key === "Enter") activateSub(); }} />
+            <button style={Object.assign({}, b2, {width: "100%"})} onClick={activateSub}>Activate</button>
+          </div>
+        </div>
+      </div>
+      <style>{CSS_TEXT}</style>
+    </div>
+  );
 
   // SPLASH
   if (screen === "splash") return (
