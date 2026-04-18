@@ -153,10 +153,30 @@ export default function App() {
     }
   }
 
+  var SUPABASE_URL = "https://ndqfqalcbfkzdzdkhxhh.supabase.co";
+  var SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5kcWZxYWxjYmZremR6ZGtoeGhoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0Njk0OTUsImV4cCI6MjA5MjA0NTQ5NX0.12axFqNBTt7SE2bRyn2MFDtDynllWQXUk4GK45mrTxs";
+
+  var _subLoading = useState(false); var subLoading = _subLoading[0]; var setSubLoading = _subLoading[1];
+  var _subErr = useState(""); var subErr = _subErr[0]; var setSubErr = _subErr[1];
+
   function activateSub() {
     if (!subEmail.trim()) return;
-    localStorage.setItem("storyline_sub", subEmail.trim());
-    setScreen("splash");
+    setSubLoading(true); setSubErr("");
+    var email = subEmail.trim().toLowerCase();
+    fetch(SUPABASE_URL + "/rest/v1/subscribers?email=eq." + encodeURIComponent(email) + "&status=eq.active", {
+      headers: { "apikey": SUPABASE_ANON, "Authorization": "Bearer " + SUPABASE_ANON }
+    }).then(function(r) { return r.json(); }).then(function(data) {
+      if (data && data.length > 0) {
+        localStorage.setItem("storyline_sub", email);
+        setScreen("splash");
+      } else {
+        setSubErr("Email not found. Make sure you used the same email on Ko-fi.");
+      }
+      setSubLoading(false);
+    }).catch(function() {
+      setSubErr("Connection error. Try again.");
+      setSubLoading(false);
+    });
   }
 
   function getDailyCount() {
@@ -471,8 +491,9 @@ export default function App() {
 
           <div style={{marginTop: 24}}>
             <p style={{fontSize: 12, color: "#5a544a", marginBottom: 8}}>Already subscribed? Enter your Ko-fi email:</p>
-            <input style={Object.assign({}, inp, {textAlign: "center", marginBottom: 10})} placeholder="your@email.com" value={subEmail} onChange={function(e) { setSubEmail(e.target.value); }} onKeyDown={function(e) { if (e.key === "Enter") activateSub(); }} />
-            <button style={Object.assign({}, b2, {width: "100%"})} onClick={activateSub}>Activate</button>
+            <input style={Object.assign({}, inp, {textAlign: "center", marginBottom: 10})} placeholder="your@email.com" value={subEmail} onChange={function(e) { setSubEmail(e.target.value); setSubErr(""); }} onKeyDown={function(e) { if (e.key === "Enter") activateSub(); }} />
+            {subErr && <p style={{color: "#c0392b", fontSize: 12, marginBottom: 8}}>{subErr}</p>}
+            <button style={Object.assign({}, b2, {width: "100%"})} onClick={activateSub}>{subLoading ? "Checking..." : "Activate"}</button>
           </div>
         </div>
       </div>
