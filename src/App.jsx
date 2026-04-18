@@ -155,13 +155,21 @@ export default function App() {
   var _bu = useState(false); var busy = _bu[0]; var setBusy = _bu[1];
   var _lms = useState(LMSGS[0]); var lmsg = _lms[0]; var setLmsg = _lms[1];
 
-  var _cm = useState([]); var cMsgs = _cm[0]; var setCMsgs = _cm[1];
+  var _cm = useState({}); var allChats = _cm[0]; var setAllChats = _cm[1];
   var _ci = useState(""); var cIn = _ci[0]; var setCIn = _ci[1];
   var _cb = useState(false); var cBusy = _cb[0]; var setCBusy = _cb[1];
-  var _cht = useState([]); var cHist = _cht[0]; var setCHist = _cht[1];
   var _er = useState(""); var err = _er[0]; var setErr = _er[1];
   var _sid = useState(null); var activeStoryId = _sid[0]; var setActiveStoryId = _sid[1];
   var _cp = useState(null); var chatPartner = _cp[0]; var setChatPartner = _cp[1];
+
+  var cMsgs = (chatPartner && allChats[chatPartner] && allChats[chatPartner].msgs) ? allChats[chatPartner].msgs : [];
+  var cHist = (chatPartner && allChats[chatPartner] && allChats[chatPartner].hist) ? allChats[chatPartner].hist : [];
+
+  function updateChat(name, msgs, hist) {
+    var updated = Object.assign({}, allChats);
+    updated[name] = { msgs: msgs, hist: hist };
+    setAllChats(updated);
+  }
 
   var _saved = useState(function() {
     try { var d = localStorage.getItem("storyline_stories"); return d ? JSON.parse(d) : []; }
@@ -174,8 +182,10 @@ export default function App() {
   }
 
   function saveChatToStorage(storyId, msgs, hist) {
+    var chatsCopy = Object.assign({}, allChats);
+    if (chatPartner) { chatsCopy[chatPartner] = { msgs: msgs, hist: hist }; }
     var updated = savedStories.map(function(s) {
-      if (s.id === storyId) { return Object.assign({}, s, { chatMsgs: msgs, chatHist: hist }); }
+      if (s.id === storyId) { return Object.assign({}, s, { allChats: chatsCopy }); }
       return s;
     });
     saveToStorage(updated);
@@ -250,7 +260,6 @@ export default function App() {
 
       setCurText(txt);
       setScreen("story");
-      setCMsgs([]);
 
       var isBetrayal = endingType === "betrayal" && sl;
       var chatWith = isBetrayal ? sl : l;
@@ -258,10 +267,12 @@ export default function App() {
       setChatPartner(chatWith);
 
       var initHist = [
-        {role: "user", content: "You are " + chatWith + " from a " + sc.label + " story, texting " + p + " after the story just ended. You are " + chatRole + ". Stay in character. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text. Be flirty, intense, or emotional. Never mention AI."},
+        {role: "user", content: "You are " + chatWith + " from a " + sc.label + " story, texting " + p + " after the story just ended. You are " + chatRole + ". Stay in character. 1-3 sentences max. Text casually. NO asterisks. Never mention AI."},
         {role: "assistant", content: "I understand."}
       ];
-      setCHist(initHist);
+      var initChats = {};
+      initChats[chatWith] = { msgs: [], hist: initHist };
+      setAllChats(initChats);
 
       var newStory = {
         id: Date.now().toString(),
@@ -315,7 +326,7 @@ export default function App() {
     setNMode(null); setLMode(null); setVMode(null); setEnding(null);
     setPGender(null); setLGender(null); setVGender(null); setVRole(null); setSpiceLevel(null);
     setPName(""); setLName(""); setVName(""); setSLName(""); setSLGender(null); setSLMode(null);
-    setCMsgs([]); setCHist([]); setActiveStoryId(null);
+    setAllChats({}); setActiveStoryId(null);
   }
 
   function loadStory(story) {
@@ -324,8 +335,10 @@ export default function App() {
     setPGender(story.pGender); setLGender(story.lGender); setVGender(story.vGender || null);
     setEnding(story.ending);
     setCurText(story.text);
-    setCMsgs(story.chatMsgs || []);
-    setCHist(story.chatHist || []);
+    var loadedChats = {};
+    if (story.allChats) { loadedChats = story.allChats; }
+    else if (story.chatMsgs && story.chatPartner) { loadedChats[story.chatPartner] = { msgs: story.chatMsgs, hist: story.chatHist || [] }; }
+    setAllChats(loadedChats);
     setActiveStoryId(story.id);
     setChatPartner(story.chatPartner || story.lName);
     setScreen("story");
@@ -338,13 +351,13 @@ export default function App() {
   }
 
   function sendChat() {
-    if (!cIn.trim() || cBusy) return;
+    if (!cIn.trim() || cBusy || !chatPartner) return;
     var msg = cIn.trim(); setCIn("");
     var newMsgs = cMsgs.concat([{role: "user", text: msg}]);
-    setCMsgs(newMsgs);
+    updateChat(chatPartner, newMsgs, cHist);
     setCBusy(true);
     var sc = SCENARIOS.find(function(s) { return s.id === scenario; });
-    var sys = "You are " + (chatPartner || lName) + " from a " + sc.label + " story, texting " + pName + ". Rules: Stay in character always. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text like *smiles*. Just write normal text messages. Be emotionally engaging - flirty, intense, protective, jealous, or vulnerable. Use " + pName + " name sometimes. NEVER mention being AI.";
+    var sys = "You are " + chatPartner + " from a " + sc.label + " story, texting " + pName + ". Rules: Stay in character always. 1-3 sentences max. Text casually like a real person. DO NOT use asterisks or action text like *smiles*. Just write normal text messages. Be emotionally engaging - flirty, intense, protective, jealous, or vulnerable. Use " + pName + " name sometimes. NEVER mention being AI.";
     var msgs = cHist.concat([{role: "user", content: msg}]);
     callAPI(sys, msgs, 200).then(function(d) {
       var reply = "";
@@ -352,12 +365,12 @@ export default function App() {
       if (!reply) reply = "...";
       var updatedMsgs = newMsgs.concat([{role: "li", text: reply}]);
       var updatedHist = msgs.concat([{role: "assistant", content: reply}]);
-      setCMsgs(updatedMsgs);
-      setCHist(updatedHist);
+      updateChat(chatPartner, updatedMsgs, updatedHist);
       if (activeStoryId) saveChatToStorage(activeStoryId, updatedMsgs, updatedHist);
       setCBusy(false);
     }).catch(function() {
-      setCMsgs(function(p) { return p.concat([{role: "li", text: "..."}]); });
+      var errMsgs = newMsgs.concat([{role: "li", text: "..."}]);
+      updateChat(chatPartner, errMsgs, cHist);
       setCBusy(false);
     });
   }
@@ -711,12 +724,11 @@ export default function App() {
         <div style={{display: "flex", gap: 0, background: "#0d0d12", borderRadius: 14, overflow: "hidden", border: "1px solid #1a1a24", marginBottom: 16}}>
           <button style={nb(true)}>STORY</button>
           <button style={nb(false)} onClick={function() {
-              if (cHist.length === 0) {
+              var cp = chatPartner || lName;
+              setChatPartner(cp);
+              if (!allChats[cp] || !allChats[cp].hist || allChats[cp].hist.length === 0) {
                 var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
-                setCHist([
-                  {role: "user", content: "You are " + (chatPartner || lName) + " from a " + (sc2 && sc2.label) + " story, texting " + pName + ". Stay in character. 1-3 sentences. Text casually. NO asterisks or action text. Never mention AI."},
-                  {role: "assistant", content: "I understand."}
-                ]);
+                updateChat(cp, [], [{role: "user", content: "You are " + cp + " from a " + (sc2 && sc2.label) + " story, texting " + pName + ". Stay in character. 1-3 sentences. Text casually. NO asterisks. Never mention AI."}, {role: "assistant", content: "I understand."}]);
               }
               setScreen("chat");
             }}>CHAT WITH {(chatPartner || lName).toUpperCase()}</button>
@@ -735,33 +747,27 @@ export default function App() {
             <button style={bt(false)} onClick={function() {
               var cp = ending === "betrayal" && slName ? slName : lName;
               setChatPartner(cp);
-              var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
-              var role = (ending === "betrayal") ? "the person " + pName + " ended up with after being betrayed" : "the love interest";
-              setCMsgs([]);
-              setCHist([
-                {role: "user", content: "You are " + cp + " from a " + (sc2 && sc2.label) + " story. You are " + role + ", texting " + pName + ". Stay in character. 1-3 sentences. Text casually. NO asterisks. Never mention AI."},
-                {role: "assistant", content: "I understand."}
-              ]);
+              if (!allChats[cp] || !allChats[cp].hist || allChats[cp].hist.length === 0) {
+                var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
+                var role = (ending === "betrayal") ? "the person " + pName + " ended up with after being betrayed" : "the love interest";
+                updateChat(cp, [], [{role: "user", content: "You are " + cp + " from a " + (sc2 && sc2.label) + " story. You are " + role + ", texting " + pName + ". Stay in character. 1-3 sentences. Text casually. NO asterisks. Never mention AI."}, {role: "assistant", content: "I understand."}]);
+              }
               setScreen("chat");
             }}>{ending === "betrayal" && slName ? slName : lName} wants to talk to you...</button>
             {slName && ending !== "betrayal" && <button style={Object.assign({}, b2, {borderColor: "#2e86de40", color: "#2e86de"})} onClick={function() {
               setChatPartner(slName);
-              var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
-              setCMsgs([]);
-              setCHist([
-                {role: "user", content: "You are " + slName + " from a " + (sc2 && sc2.label) + " story. You have feelings for " + pName + " but they are with " + lName + ". Text " + pName + " - be sweet, caring, maybe a little flirty. You are the second lead who quietly loves them. Stay in character. 1-3 sentences. Text casually. NO asterisks. Never mention AI."},
-                {role: "assistant", content: "I understand."}
-              ]);
+              if (!allChats[slName] || !allChats[slName].hist || allChats[slName].hist.length === 0) {
+                var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
+                updateChat(slName, [], [{role: "user", content: "You are " + slName + " from a " + (sc2 && sc2.label) + " story. You have feelings for " + pName + " but they are with " + lName + ". Text " + pName + " - be sweet, caring, maybe a little flirty. Stay in character. 1-3 sentences. Text casually. NO asterisks. Never mention AI."}, {role: "assistant", content: "I understand."}]);
+              }
               setScreen("chat");
             }}>{slName} sent you a message...</button>}
             {ending === "betrayal" && <button style={Object.assign({}, b2, {borderColor: "#c0392b40", color: "#c0392b"})} onClick={function() {
               setChatPartner(lName);
-              var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
-              setCMsgs([]);
-              setCHist([
-                {role: "user", content: "You are " + lName + " from a " + (sc2 && sc2.label) + " story. You BETRAYED " + pName + " and now they are with " + (slName || "someone else") + ". You regret everything. Text " + pName + " trying to explain yourself or win them back. Stay in character. 1-3 sentences. Text casually. NO asterisks. Never mention AI."},
-                {role: "assistant", content: "I understand."}
-              ]);
+              if (!allChats[lName] || !allChats[lName].hist || allChats[lName].hist.length === 0) {
+                var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
+                updateChat(lName, [], [{role: "user", content: "You are " + lName + " from a " + (sc2 && sc2.label) + " story. You BETRAYED " + pName + " and now they are with " + (slName || "someone else") + ". You regret everything. Text " + pName + " trying to explain yourself or win them back. Stay in character. 1-3 sentences. Text casually. NO asterisks. Never mention AI."}, {role: "assistant", content: "I understand."}]);
+              }
               setScreen("chat");
             }}>{lName} is trying to reach you...</button>}
             <div style={{display: "flex", gap: 8}}>
