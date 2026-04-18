@@ -166,9 +166,18 @@ export default function App() {
   var cHist = (chatPartner && allChats[chatPartner] && allChats[chatPartner].hist) ? allChats[chatPartner].hist : [];
 
   function updateChat(name, msgs, hist) {
-    var updated = Object.assign({}, allChats);
-    updated[name] = { msgs: msgs, hist: hist };
-    setAllChats(updated);
+    setAllChats(function(prev) {
+      var updated = Object.assign({}, prev);
+      updated[name] = { msgs: msgs, hist: hist };
+      if (activeStoryId) {
+        var updatedStories = savedStories.map(function(s) {
+          if (s.id === activeStoryId) { return Object.assign({}, s, { allChats: updated }); }
+          return s;
+        });
+        saveToStorage(updatedStories);
+      }
+      return updated;
+    });
   }
 
   var _saved = useState(function() {
@@ -182,13 +191,16 @@ export default function App() {
   }
 
   function saveChatToStorage(storyId, msgs, hist) {
-    var chatsCopy = Object.assign({}, allChats);
-    if (chatPartner) { chatsCopy[chatPartner] = { msgs: msgs, hist: hist }; }
-    var updated = savedStories.map(function(s) {
-      if (s.id === storyId) { return Object.assign({}, s, { allChats: chatsCopy }); }
-      return s;
+    setAllChats(function(prevChats) {
+      var chatsCopy = Object.assign({}, prevChats);
+      if (chatPartner) { chatsCopy[chatPartner] = { msgs: msgs, hist: hist }; }
+      var updated = savedStories.map(function(s) {
+        if (s.id === storyId) { return Object.assign({}, s, { allChats: chatsCopy }); }
+        return s;
+      });
+      saveToStorage(updated);
+      return chatsCopy;
     });
-    saveToStorage(updated);
   }
 
   var sRef = useRef(null);
