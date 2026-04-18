@@ -246,9 +246,9 @@ export default function App() {
     if (sl) {
       var slPro = pronounMap[slg] || "they/them/their";
       if (endingType === "betrayal") {
-        secondLeadLine = " SECOND LEAD: " + sl + " (pronouns: " + slPro + ") who has always quietly loved the main character. When the love interest betrays " + p + ", " + sl + " is the one who is there for them. " + p + " ends up falling for " + sl + " instead.";
+        secondLeadLine = " " + sl + " (" + slPro + ") is the second lead who " + p + " ends up with after betrayal.";
       } else {
-        secondLeadLine = " SECOND LEAD: " + sl + " (pronouns: " + slPro + ") who also has feelings for " + p + ". Create love triangle tension. " + sl + " is kind, reliable, and the safe choice - but the heart wants what it wants.";
+        secondLeadLine = " " + sl + " (" + slPro + ") is the second lead with feelings for " + p + ". Love triangle.";
       }
     }
     var setting = SETTINGS[Math.floor(Math.random() * SETTINGS.length)];
