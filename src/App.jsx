@@ -85,7 +85,7 @@ var ENDING_PROMPTS = {
   twist: "End with a massive, jaw-dropping plot twist that recontextualizes everything. The reader should gasp. Nothing was what it seemed.",
   open: "End with an open, ambiguous ending that lingers in the mind. Leave questions unanswered. Let the reader imagine what comes next.",
   dark: "End with a dark, unsettling ending. The villain may win, or the hero crosses a moral line. Leave the reader shaken.",
-  betrayal: "The love interest BETRAYS the main character - cheating, choosing someone else, or breaking their trust completely. The main character is heartbroken but comes back STRONGER. The side character becomes their new love. End with the main character happy with the new person while the original love interest watches and regrets everything. The reader wins in the end.",
+  betrayal: "BETRAYAL ARC: The love interest cheats on or betrays the main character with some random unnamed person. The main character is heartbroken and devastated. But the SIDE CHARACTER (named in the story) was always there for them. The side character comforts them, and they slowly fall for each other. End with the main character happy with the side character (their new love) while the original love interest regrets everything but it is too late. The side character is the hero of this story.",
   surprise: "End with whatever ending fits the story best - could be happy, tragic, twisted, or anything. Surprise the reader."
 };
 
@@ -143,6 +143,9 @@ export default function App() {
   var _lg = useState(null); var lGender = _lg[0]; var setLGender = _lg[1];
   var _vg = useState(null); var vGender = _vg[0]; var setVGender = _vg[1];
   var _vr = useState(null); var vRole = _vr[0]; var setVRole = _vr[1];
+  var _s2n = useState(""); var slName = _s2n[0]; var setSLName = _s2n[1];
+  var _s2g = useState(null); var slGender = _s2g[0]; var setSLGender = _s2g[1];
+  var _s2m = useState(null); var slMode = _s2m[0]; var setSLMode = _s2m[1];
   var _nm = useState(null); var nMode = _nm[0]; var setNMode = _nm[1];
   var _lm = useState(null); var lMode = _lm[0]; var setLMode = _lm[1];
   var _vm = useState(null); var vMode = _vm[0]; var setVMode = _vm[1];
@@ -205,7 +208,7 @@ export default function App() {
     return function() { clearInterval(iv); };
   }, [busy]);
 
-  function generateStory(scId, p, l, v, endingType, pg, lg, vg, vr, spice) {
+  function generateStory(scId, p, l, v, endingType, pg, lg, vg, vr, spice, sl, slg) {
     setBusy(true); setErr("");
     var sc = SCENARIOS.find(function(s) { return s.id === scId; });
     var pronounMap = { male: "he/him/his", female: "she/her/her", nonbinary: "they/them/their" };
@@ -215,7 +218,16 @@ export default function App() {
     if (v) {
       var vPro = pronounMap[vg] || "they/them/their";
       var roleDesc = ROLE_PROMPTS[vr || "villain"] || ROLE_PROMPTS.villain;
-      villainLine = "There is a side character named " + v + " (pronouns: " + vPro + ") " + roleDesc + ". Give them a meaningful role in the story.";
+      villainLine = " VILLAIN: " + v + " (pronouns: " + vPro + ") " + roleDesc + ".";
+    }
+    var secondLeadLine = "";
+    if (sl) {
+      var slPro = pronounMap[slg] || "they/them/their";
+      if (endingType === "betrayal") {
+        secondLeadLine = " SECOND LEAD: " + sl + " (pronouns: " + slPro + ") who has always quietly loved the main character. When the love interest betrays " + p + ", " + sl + " is the one who is there for them. " + p + " ends up falling for " + sl + " instead.";
+      } else {
+        secondLeadLine = " SECOND LEAD: " + sl + " (pronouns: " + slPro + ") who also has feelings for " + p + ". Create love triangle tension. " + sl + " is kind, reliable, and the safe choice - but the heart wants what it wants.";
+      }
     }
     var setting = SETTINGS[Math.floor(Math.random() * SETTINGS.length)];
     var opening = OPENINGS[Math.floor(Math.random() * OPENINGS.length)];
@@ -223,9 +235,9 @@ export default function App() {
     var endingInstruction = ENDING_PROMPTS[endingType] || ENDING_PROMPTS.surprise;
 
     var spiceInstruction = SPICE_PROMPTS[spice] || SPICE_PROMPTS.spicy;
-    var sys = "You write addictive " + sc.label + " stories like the top novels on Wattpad and Dreame. RULES: Main character is " + p + " (pronouns: " + pPro + ") in second person (you). Love interest is " + l + " (pronouns: " + lPro + "). Write a COMPLETE story with beginning, middle, and ending. 800-1000 words. Start with a bold creative title. Write casual, raw, emotional. Short punchy lines. Lots of dialogue. Include jealousy, tension, heated arguments, heartbreak, or intense chemistry. Make " + l + " irresistible. Include " + (HINTS[scId] || "tension and depth") + ". Go HARD on the drama. ROMANCE LEVEL: " + spiceInstruction + " ENDING: " + endingInstruction + ". Story " + storyId + " must be unique." + (villainLine ? " " + villainLine : "");
+    var sys = "You write addictive " + sc.label + " stories like the top novels on Wattpad and Dreame. RULES: Main character is " + p + " (pronouns: " + pPro + ") in second person (you). Love interest is " + l + " (pronouns: " + lPro + "). Write a COMPLETE story with beginning, middle, and ending. 800-1000 words. Start with a bold creative title. Write casual, raw, emotional. Short punchy lines. Lots of dialogue. Include jealousy, tension, heated arguments, heartbreak, or intense chemistry. Make " + l + " irresistible. Include " + (HINTS[scId] || "tension and depth") + ". Go HARD on the drama. ROMANCE LEVEL: " + spiceInstruction + " ENDING: " + endingInstruction + ". Story " + storyId + " must be unique." + villainLine + secondLeadLine;
 
-    var uMsg = "Write a complete personalized " + sc.label + " short story. Setting: " + setting + ". The story begins with " + opening + ". Main character: " + p + ". Love interest: " + l + "." + (v ? " Villain: " + v + "." : "") + " Include a powerful beginning, an emotional middle with rising tension, and a memorable ending. Make it unforgettable.";
+    var uMsg = "Write a complete personalized " + sc.label + " short story. Setting: " + setting + ". The story begins with " + opening + ". Main character: " + p + ". Love interest: " + l + "." + (v ? " Villain: " + v + "." : "") + (sl ? " Second lead: " + sl + "." : "") + " Include a powerful beginning, an emotional middle with rising tension, and a memorable ending. Make it unforgettable.";
 
     var msgs = [{role: "user", content: uMsg}];
 
@@ -240,9 +252,9 @@ export default function App() {
       setScreen("story");
       setCMsgs([]);
 
-      var isBetrayal = endingType === "betrayal" && v;
-      var chatWith = isBetrayal ? v : l;
-      var chatRole = isBetrayal ? "the person who was there for " + p + " after " + l + " betrayed them" : "the love interest";
+      var isBetrayal = endingType === "betrayal" && sl;
+      var chatWith = isBetrayal ? sl : l;
+      var chatRole = isBetrayal ? "the person who was there for " + p + " after " + l + " betrayed them, now their new love" : "the love interest";
       setChatPartner(chatWith);
 
       var initHist = [
@@ -278,29 +290,31 @@ export default function App() {
     var rpg = genders[Math.floor(Math.random() * genders.length)];
     var rlg = genders[Math.floor(Math.random() * genders.length)];
     var rvg = genders[Math.floor(Math.random() * genders.length)];
-    var a = rName(rpg); var b = rName(rlg); var v = rVillain(rvg);
+    var rslg = genders[Math.floor(Math.random() * genders.length)];
+    var a = rName(rpg); var b = rName(rlg); var v = rVillain(rvg); var s2 = rName(rslg);
     while (b === a) b = rName(rlg);
     while (v === a || v === b) v = rVillain(rvg);
-    var endings = ["happy","sad","twist","open","dark","surprise"];
+    while (s2 === a || s2 === b || s2 === v) s2 = rName(rslg);
+    var endings = ["happy","sad","twist","open","dark","betrayal","surprise"];
     var randEnding = endings[Math.floor(Math.random() * endings.length)];
     var roleIds = ["villain","ex","affair","bestfriend","rival","boss","family","secretary","admirer","stranger"];
     var rvr = roleIds[Math.floor(Math.random() * roleIds.length)];
     var spices = ["clean","spicy","mature"];
     var rsp = spices[Math.floor(Math.random() * spices.length)];
-    setScenario(scId); setPName(a); setLName(b); setVName(v); setEnding(randEnding);
-    setPGender(rpg); setLGender(rlg); setVGender(rvg); setVRole(rvr); setSpiceLevel(rsp);
-    generateStory(scId, a, b, v, randEnding, rpg, rlg, rvg, rvr, rsp);
+    setScenario(scId); setPName(a); setLName(b); setVName(v); setSLName(s2); setEnding(randEnding);
+    setPGender(rpg); setLGender(rlg); setVGender(rvg); setSLGender(rslg); setVRole(rvr); setSpiceLevel(rsp);
+    generateStory(scId, a, b, v, randEnding, rpg, rlg, rvg, rvr, rsp, s2, rslg);
   }
 
   function customStart() {
-    generateStory(scenario, pName, lName, vName, ending, pGender, lGender, vGender, vRole, spiceLevel);
+    generateStory(scenario, pName, lName, vName, ending, pGender, lGender, vGender, vRole, spiceLevel, slName, slGender);
   }
 
   function doReset() {
     setScreen("scenario"); setScenario(null); setCurText(""); setShown(""); setErr("");
     setNMode(null); setLMode(null); setVMode(null); setEnding(null);
     setPGender(null); setLGender(null); setVGender(null); setVRole(null); setSpiceLevel(null);
-    setPName(""); setLName(""); setVName("");
+    setPName(""); setLName(""); setVName(""); setSLName(""); setSLGender(null); setSLMode(null);
     setCMsgs([]); setCHist([]); setActiveStoryId(null);
   }
 
@@ -559,7 +573,36 @@ export default function App() {
           </div>}
           <div style={Object.assign({}, cd(vMode === "skip", "#636e72"), {marginTop: 8})} onClick={function() { setVMode("skip"); setVName(""); setVGender(null); setVRole(null); }}>
             <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u2796"}</div>
-            <div style={{fontSize: 14, fontWeight: 600, color: "#636e72"}}>No side character</div>
+            <div style={{fontSize: 14, fontWeight: 600, color: "#636e72"}}>No villain</div>
+          </div>
+        </div>
+
+        <div style={divider} />
+
+        <div style={{marginBottom: 20}}>
+          <div style={{fontSize: 12, letterSpacing: 3, color: "#2e86de", fontFamily: MONO, textTransform: "uppercase", marginBottom: 10}}>Second lead (optional)</div>
+          <p style={{fontSize: 12, color: "#5a544a", marginBottom: 10, fontStyle: "italic"}}>The other one. Could end up with you or make the love interest jealous.</p>
+          <div style={{fontSize: 11, color: "#3a3530", fontFamily: MONO, marginBottom: 6}}>THEIR GENDER</div>
+          <div style={{display: "flex", gap: 6, marginBottom: 10}}>
+            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: slGender === "female" ? "#2e86de20" : "transparent", color: slGender === "female" ? "#2e86de" : "#6b645a", borderColor: slGender === "female" ? "#2e86de" : "#1a1a24"})} onClick={function() { setSLGender("female"); if (slMode === "random") setSLName(rName("female")); }}>Female</button>
+            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: slGender === "male" ? "#2e86de20" : "transparent", color: slGender === "male" ? "#2e86de" : "#6b645a", borderColor: slGender === "male" ? "#2e86de" : "#1a1a24"})} onClick={function() { setSLGender("male"); if (slMode === "random") setSLName(rName("male")); }}>Male</button>
+            <button style={Object.assign({}, b2, {flex: 1, padding: "10px", background: slGender === "nonbinary" ? "#2e86de20" : "transparent", color: slGender === "nonbinary" ? "#2e86de" : "#6b645a", borderColor: slGender === "nonbinary" ? "#2e86de" : "#1a1a24"})} onClick={function() { setSLGender("nonbinary"); if (slMode === "random") setSLName(rName("nonbinary")); }}>Non-binary</button>
+          </div>
+          {slGender && <div>
+            <div style={cd(slMode === "custom", "#2e86de")} onClick={function() { setSLMode("custom"); setSLName(""); }}>
+              <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u270D\uFE0F"}</div>
+              <div style={{fontSize: 14, fontWeight: 600}}>Type their name</div>
+            </div>
+            {slMode === "custom" && <input style={Object.assign({}, inp, {marginTop: 8})} placeholder="Second lead name..." value={slName} onChange={function(e) { setSLName(e.target.value); }} />}
+            <div style={Object.assign({}, cd(slMode === "random", "#2e86de"), {marginTop: 8})} onClick={function() { setSLMode("random"); setSLName(rName(slGender)); }}>
+              <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u{1F3B2}"}</div>
+              <div style={{fontSize: 14, fontWeight: 600}}>Random name</div>
+            </div>
+            {slMode === "random" && <div style={{display: "flex", alignItems: "center", gap: 8, marginTop: 8}}><span style={Object.assign({}, pl, {background: "#2e86de18", color: "#2e86de"})}>{slName}</span><button style={Object.assign({}, b2, {width: "auto", padding: "6px 14px"})} onClick={function() { setSLName(rName(slGender)); }}>{"\u{1F3B2}"}</button></div>}
+          </div>}
+          <div style={Object.assign({}, cd(slMode === "skip", "#636e72"), {marginTop: 8})} onClick={function() { setSLMode("skip"); setSLName(""); setSLGender(null); }}>
+            <div style={{fontSize: 20, width: 32, textAlign: "center"}}>{"\u2796"}</div>
+            <div style={{fontSize: 14, fontWeight: 600, color: "#636e72"}}>No second lead</div>
           </div>
         </div>
 
@@ -703,12 +746,12 @@ export default function App() {
               }
               setScreen("chat");
             }}>{(chatPartner || lName)} wants to talk to you...</button>
-            {ending === "betrayal" && vName && <button style={Object.assign({}, b2, {borderColor: "#c0392b40", color: "#c0392b"})} onClick={function() {
+            {ending === "betrayal" && slName && <button style={Object.assign({}, b2, {borderColor: "#c0392b40", color: "#c0392b"})} onClick={function() {
               setChatPartner(lName);
               var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
               setCMsgs([]);
               setCHist([
-                {role: "user", content: "You are " + lName + " from a " + (sc2 && sc2.label) + " story. You BETRAYED " + pName + " and now they are with " + vName + ". You regret everything. Text " + pName + " trying to explain yourself or win them back. Stay in character. 1-3 sentences. Text casually. NO asterisks. Never mention AI."},
+                {role: "user", content: "You are " + lName + " from a " + (sc2 && sc2.label) + " story. You BETRAYED " + pName + " and now they are with " + slName + ". You regret everything. Text " + pName + " trying to explain yourself or win them back. Stay in character. 1-3 sentences. Text casually. NO asterisks. Never mention AI."},
                 {role: "assistant", content: "I understand."}
               ]);
               setScreen("chat");
