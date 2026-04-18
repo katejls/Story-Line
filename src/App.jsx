@@ -733,25 +733,33 @@ export default function App() {
         <div style={{position: "fixed", bottom: 0, left: 0, right: 0, padding: "16px 20px 28px", background: "linear-gradient(transparent,#07070b 30%)", zIndex: 10}}>
           <div style={{maxWidth: 480, margin: "0 auto", display: "flex", flexDirection: "column", gap: 8}}>
             <button style={bt(false)} onClick={function() {
-              var cp = chatPartner || lName;
+              var cp = ending === "betrayal" && slName ? slName : lName;
               setChatPartner(cp);
-              if (cHist.length === 0 || chatPartner !== cp) {
-                var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
-                var role = (ending === "betrayal" && cp !== lName) ? "the person who was there for " + pName + " after being betrayed" : "the love interest";
-                setCMsgs([]);
-                setCHist([
-                  {role: "user", content: "You are " + cp + " from a " + (sc2 && sc2.label) + " story. You are " + role + ", texting " + pName + ". Stay in character. 1-3 sentences. Text casually. NO asterisks or action text. Never mention AI."},
-                  {role: "assistant", content: "I understand."}
-                ]);
-              }
+              var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
+              var role = (ending === "betrayal") ? "the person " + pName + " ended up with after being betrayed" : "the love interest";
+              setCMsgs([]);
+              setCHist([
+                {role: "user", content: "You are " + cp + " from a " + (sc2 && sc2.label) + " story. You are " + role + ", texting " + pName + ". Stay in character. 1-3 sentences. Text casually. NO asterisks. Never mention AI."},
+                {role: "assistant", content: "I understand."}
+              ]);
               setScreen("chat");
-            }}>{(chatPartner || lName)} wants to talk to you...</button>
-            {ending === "betrayal" && slName && <button style={Object.assign({}, b2, {borderColor: "#c0392b40", color: "#c0392b"})} onClick={function() {
+            }}>{ending === "betrayal" && slName ? slName : lName} wants to talk to you...</button>
+            {slName && ending !== "betrayal" && <button style={Object.assign({}, b2, {borderColor: "#2e86de40", color: "#2e86de"})} onClick={function() {
+              setChatPartner(slName);
+              var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
+              setCMsgs([]);
+              setCHist([
+                {role: "user", content: "You are " + slName + " from a " + (sc2 && sc2.label) + " story. You have feelings for " + pName + " but they are with " + lName + ". Text " + pName + " - be sweet, caring, maybe a little flirty. You are the second lead who quietly loves them. Stay in character. 1-3 sentences. Text casually. NO asterisks. Never mention AI."},
+                {role: "assistant", content: "I understand."}
+              ]);
+              setScreen("chat");
+            }}>{slName} sent you a message...</button>}
+            {ending === "betrayal" && <button style={Object.assign({}, b2, {borderColor: "#c0392b40", color: "#c0392b"})} onClick={function() {
               setChatPartner(lName);
               var sc2 = SCENARIOS.find(function(s2) { return s2.id === scenario; });
               setCMsgs([]);
               setCHist([
-                {role: "user", content: "You are " + lName + " from a " + (sc2 && sc2.label) + " story. You BETRAYED " + pName + " and now they are with " + slName + ". You regret everything. Text " + pName + " trying to explain yourself or win them back. Stay in character. 1-3 sentences. Text casually. NO asterisks. Never mention AI."},
+                {role: "user", content: "You are " + lName + " from a " + (sc2 && sc2.label) + " story. You BETRAYED " + pName + " and now they are with " + (slName || "someone else") + ". You regret everything. Text " + pName + " trying to explain yourself or win them back. Stay in character. 1-3 sentences. Text casually. NO asterisks. Never mention AI."},
                 {role: "assistant", content: "I understand."}
               ]);
               setScreen("chat");
