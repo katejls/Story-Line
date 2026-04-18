@@ -133,8 +133,22 @@ function callAPI(system, messages, maxTokens) {
 
 export default function App() {
   var DAILY_LIMIT = 5;
-  var isAdmin = (function() { try { return localStorage.getItem("storyline_admin") === "katejls2025"; } catch(e) { return false; } })();
+  var isAdmin = (function() { try { return localStorage.getItem("storyline_admin") === "Kraisha"; } catch(e) { return false; } })();
   var _s = useState("splash"); var screen = _s[0]; var setScreen = _s[1];
+  var _tap = useState(0); var tapCount = _tap[0]; var setTapCount = _tap[1];
+
+  function handleLogoTap() {
+    var newCount = tapCount + 1;
+    setTapCount(newCount);
+    if (newCount >= 5) {
+      setTapCount(0);
+      var code = prompt("Enter admin code:");
+      if (code) {
+        localStorage.setItem("storyline_admin", code);
+        window.location.reload();
+      }
+    }
+  }
 
   function getDailyCount() {
     try {
@@ -471,7 +485,7 @@ export default function App() {
   if (screen === "scenario") return (
     <div style={W}><div style={G} />
       <div style={C}>
-        <div style={{textAlign: "center", padding: "24px 0 8px"}}><div style={LO}>storyline</div></div>
+        <div style={{textAlign: "center", padding: "24px 0 8px"}}><div style={LO} onClick={handleLogoTap}>storyline</div></div>
         <div style={{fontSize: 10, letterSpacing: 4, color: "#3a3530", fontFamily: MONO, marginBottom: 14}}>STEP 1 OF 3</div>
         <h2 style={{fontSize: 26, fontWeight: 300, marginBottom: 6}}>What world do you<br />want to live in?</h2>
         <p style={{fontSize: 13, color: "#5a544a", marginBottom: 16, fontStyle: "italic"}}>Pick your story. Then personalize it.</p>
