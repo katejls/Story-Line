@@ -112,7 +112,7 @@ function callAPI(system, messages, maxTokens) {
     var payload = {
       system: system,
       messages: messages,
-      max_tokens: maxTokens || 1500
+      max_tokens: maxTokens || 2500
     };
     return fetch("/api/chat", {
       method: "POST",
@@ -241,7 +241,7 @@ export default function App() {
 
     var msgs = [{role: "user", content: uMsg}];
 
-    callAPI(sys, msgs, 1500).then(function(d) {
+    callAPI(sys, msgs, 2500).then(function(d) {
       console.log("API response", d);
       var txt = "";
       if (d.content) { for (var ci = 0; ci < d.content.length; ci++) { txt += (d.content[ci].text || ""); } }
